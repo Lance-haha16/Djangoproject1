@@ -53,3 +53,26 @@ def article_delete(request,id):
     article=ArticlePost.objects.get(id=id)
     article.delete()
     return redirect("myapp:article_list")
+
+def article_update(request,id):
+    article=ArticlePost.objects.get(id=id)
+
+    if request.method=="POST":
+        article_post_form=ArticlePostForm(data=request.POST)
+        # 判断提交的数据是否满足模型的要求
+        if article_post_form.is_valid():
+            # 保存新写入的 title、body 数据并保存
+            article.title = request.POST['title']
+            article.body = request.POST['body']
+            article.save()
+            
+            return redirect("myapp:article_detail",id=id)
+        else:
+            return HttpResponse("error,请重新填写")
+
+    else: 
+        article_post_form = ArticlePostForm()
+        # 赋值上下文，将 article 文章对象也传递进去，以便提取旧的内容
+        context = { 'article': article, 'article_post_form': article_post_form }
+        # 将响应返回到模板中
+        return render(request, 'article/update.html', context)
