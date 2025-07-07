@@ -7,4 +7,5 @@ app_name = 'article'
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('myapp/', include('myapp.urls', namespace='myapp')),
+    path('userprofile/', include('userprofile.urls', namespace='userprofile')),
 ]

@@ -13,7 +13,7 @@ def article_list(request):
     return render(request,'article/list.html',context)
 
 def mainpage(request):
-    return render(request,'base.html')
+    return redirect("myapp:article_list")
 
 def article_detail(request,id):
     article=ArticlePost.objects.get(id=id)
