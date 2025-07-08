@@ -3,6 +3,7 @@ from django.shortcuts import render ,redirect
 from .forms import ArticlePostForm
 from .models import ArticlePost
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 import markdown
 
 
@@ -23,6 +24,9 @@ def article_detail(request,id):
     context = { 'article': article }
     return render(request,'article/detail.html',context)
 
+
+
+@login_required(login_url='/userprofile/login/')
 def article_create(request):
     if request.method=="POST":
         article_post_form=ArticlePostForm(data=request.POST)
@@ -32,7 +36,7 @@ def article_create(request):
             # 指定数据库中 id=1 的用户为作者
             # 如果你进行过删除数据表的操作，可能会找不到id=1的用户
             # 此时请重新创建用户，并传入此用户的id
-            new_article.author = User.objects.get(id=1)
+            new_article.author = User.objects.get(id=request.user.id)
             # 将新文章保存到数据库中
             new_article.save()
             # 完成后返回到文章列表
