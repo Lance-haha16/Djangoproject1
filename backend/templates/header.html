@@ -9,15 +9,15 @@
       <div>
         <ul class="navbar-nav">
           <!-- 条目 -->
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'myapp:article_list' %}">文章</a>
-
-            
-          </li>
+          
           <li class="nav-item">
             <a class="nav-link" href="{% url 'myapp:article_list' %}">文章</a>
         </li>
-        
+
+          <li class="nav-item">
+          <a class="nav-link" href="{% url 'myapp:article_create' %}">写文章</a>
+          </li>
+          
         <!-- Django的 if 模板语句 -->
         {% if user.is_authenticated %}
             <!-- 如果用户已经登录，则显示用户名下拉框 -->
@@ -40,8 +40,7 @@
 
 
 
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'myapp:article_create' %}">写文章</a>
+          
         </ul>
       </div>
   

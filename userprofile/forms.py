@@ -2,8 +2,8 @@ from django import forms
 from django.contrib.auth.models import User
 
 class UserLoginForm(forms.Form):
-    username=forms.CharField
-    password=forms.CharField
+    username=forms.CharField()
+    password=forms.CharField()
 
 class UserRegisterForm(forms.ModelForm):
     # 复写 User 的密码
