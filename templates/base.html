@@ -23,7 +23,8 @@
     {% include 'footer.html' %}
     <!-- bootstrap.js 依赖 jquery.js 和popper.js，因此在这里引入 -->
     <script src="{% static 'jquery/jquery-3.3.1.js' %}"></script>
-  
+    {% block script %}{% endblock script %}
+    {% include 'back_to_top_func.html' %}
     <!-- 
         popper.js 采用 cdn 远程引入，意思是你不需要把它下载到本地。
         在实际的开发中推荐静态文件尽量都使用 cdn 的形式。 
@@ -35,5 +36,10 @@
     <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
     <script src="{% static 'layer/layer.js' %}"></script>
 </body>
+
+<link 
+      rel="stylesheet" 
+      href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14.0/css/all.min.css"
+>
 
 </html>

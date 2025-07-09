@@ -57,34 +57,87 @@
 
     <div class="row mt-2">
 
-        {% for article in articles %}
-        <!-- 文章内容 -->
-        <div class="col-4 mb-4">
-        <!-- 卡片容器 -->
-            <div class="card h-100">
-                <!-- 标题 -->
-                <h4 class="card-header">{{ article.title }}</h4>
-                <!-- 摘要 -->
-                <div class="card-body">
-                    <p class="card-text">{{ article.body|slice:'100' }}...</p>
+        
+            {% for article in articles %}
+                <!-- 文章内容 -->
+                {% if article.avatar %}
+                <div class="col-3">
+                    <img src="{{ article.avatar.url }}" 
+                         alt="avatar" 
+                         style="max-width:100%; border-radius: 20px"
+                    >
                 </div>
-                <!-- 注脚 -->
-                <div class="card-footer">
-                    <a href="{% url 'article:article_detail' article.id %}" class="btn btn-primary">阅读本文</a>
-                
-                    <span>
-                        <small class="col align-self-end" style="color: gray;">
-                            浏览: {{ article.total_views }}
-                        </small>
-                    </span>
+            {% endif %}
+                <div class="col-9">
+                    <!-- 栏目 -->
+                    {% if article.column %}
+                        <button type="button" 
+                            class="btn btn-sm mb-2
+                                {% if article.column.title == 'Django' %}
+                                    btn-success
+                                {% elif article.column.title == 'Java' %}
+                                    btn-danger
+                                {% elif article.column.title == 'HTML' %}
+                                    btn-warning
+                                {% endif %}
+                            "
+                        >
+                            {{ article.column }}
+                        </button>
+                    {% endif %}
 
-                
+                    <!-- 标签 -->
+                        <span>
+                            {% for tag in article.tags.all %}
+                            <a href="{% url 'article:article_list' %}?tag={{ tag }}"
+                            class="badge badge-secondary" 
+                         >
+                                    {{ tag }}
+                                </a>
+                            {% endfor %}
+                        </span>
+
+
+                    <!-- 标题 -->
+                    <h4>
+                        <b>
+                            <a href="{% url 'article:article_detail' article.id %}"
+                               style="color: black;" 
+                            >
+                                {{ article.title }}
+                            </a>
+                        </b>
+                    </h4>
+                    <!-- 摘要 -->
+                    <div>
+                        <p style="color: gray;">
+                            {{ article.body|slice:'100' }}...
+                        </p>
+                    </div>
+                    <!-- 注脚 -->
+                    <p>
+                        <p>
+                        <!-- 附加信息，增加了图标 -->
+                        <span>
+                            <i class="fas fa-eye" style="color: lightskyblue;"></i>
+                            {{ article.total_views }}&nbsp;&nbsp;&nbsp;
+                        </span>
+                        <span>
+                            <i class="fas fa-comments" style="color: yellowgreen;"></i>
+                            <!-- 修改为评论的计数 -->
+                            {{ article.comments.count }}&nbsp;&nbsp;&nbsp;
+                        </span>
+                        <span>
+                            <i class="fas fa-clock" style="color: pink;"></i>
+                            {{ article.created|date:'Y-m-d' }}
+                        </span>
+                    </p>
+                       
+                    
+                    <hr style ="width:100%;"/>
                 </div>
-            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-
-    </div>
 </div>
 
 
