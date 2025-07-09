@@ -30,7 +30,7 @@ def article_list(request):
             article_list=ArticlePost.objects.all().order_by('-total_views')
         else:
             article_list = ArticlePost.objects.all()   
-    paginator = Paginator(article_list, 3)
+    paginator = Paginator(article_list, 6)
     page = request.GET.get('page')
     articles = paginator.get_page(page)
     
