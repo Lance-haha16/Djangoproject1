@@ -96,6 +96,7 @@ def profile_edit(request, id):
             if 'avatar' in request.FILES:
                 profile.avatar = profile_cd["avatar"]
             profile.save()
+            
             # 带参数的 redirect()
             return redirect("userprofile:edit", id=id)
         else:

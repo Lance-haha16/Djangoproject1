@@ -5,24 +5,62 @@ from .forms import ArticlePostForm
 from django.contrib.auth.models import User
 import markdown
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator #分页
+from django.db.models import Q
+from comment.models import Comment
 
 # Create your views here.
 
 
 def article_list(request):
-    articles = ArticlePost.objects.all()
-    context = { 'articles': articles }
-    return render (request,"article/list.html",context)
 
+    search = request.GET.get('search')
+    order = request.GET.get('order')
+
+    if search:
+        if order=='total_views':
+            article_list=ArticlePost.objects.filter(Q(title__icontains=search)|Q(body__icontains=search)).order_by('-total_views')
+        else:  article_list = ArticlePost.objects.filter(
+                Q(title__icontains=search) |
+                Q(body__icontains=search)
+            )
+    else:
+        search==''
+        if order =='total_views':
+            article_list=ArticlePost.objects.all().order_by('-total_views')
+        else:
+            article_list = ArticlePost.objects.all()   
+    paginator = Paginator(article_list, 3)
+    page = request.GET.get('page')
+    articles = paginator.get_page(page)
+    
+    # 增加 search 到 context
+    context = { 'articles': articles, 'order': order, 'search': search }
+    
+    return render(request, 'article/list.html', context)
+          
+    
 
 def article_detail(request, id):
     article = ArticlePost.objects.get(id=id)
-    article.body = markdown.markdown(article.body,
+    comments = Comment.objects.filter(article=id)
+
+    article.total_views += 1
+    article.save(update_fields=['total_views'])
+
+
+    
+    md = markdown.Markdown(
         extensions=[
-        'markdown.extensions.extra',
-        'markdown.extensions.codehilite',
-        ])
-    context = { 'article': article }
+            'markdown.extensions.extra',
+            'markdown.extensions.codehilite',
+            'markdown.extensions.toc',
+        ]
+    )
+    article.body = md.convert(article.body)
+
+    
+    context = { 'article': article,'toc': md.toc ,'comments': comments }
     return render(request, 'article/detail.html', context)
 
 @login_required(login_url='/userprofile/login/')
@@ -55,6 +93,8 @@ def article_create(request):
         # 返回模板
         return render(request, 'article/create.html', context)
 
+
+@login_required(login_url='/userprofile/login/')
 def article_safe_delete(request, id):
     if request.method == 'POST':
         article = ArticlePost.objects.get(id=id)
@@ -73,7 +113,12 @@ def article_update(request, id):
 
     # 获取需要修改的具体文章对象
     article = ArticlePost.objects.get(id=id)
+    
+    if request.user != article.author:
+        return HttpResponse("抱歉，你无权修改这篇文章。")
+    
     # 判断用户是否为 POST 提交表单数据
+
     if request.method == "POST":
         # 将提交的数据赋值到表单实例中
         article_post_form = ArticlePostForm(data=request.POST)
