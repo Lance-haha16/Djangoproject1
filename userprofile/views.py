@@ -94,7 +94,8 @@ def profile_edit(request, id):
             profile.phone = profile_cd['phone']
             profile.bio = profile_cd['bio']
             if 'avatar' in request.FILES:
-                profile.avatar = profile_cd["avatar"]
+                profile.avatar = request.FILES['avatar']
+            
             profile.save()
             
             # 带参数的 redirect()

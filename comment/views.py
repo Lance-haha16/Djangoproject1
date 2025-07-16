@@ -5,8 +5,10 @@ from django.http import HttpResponse
 from .models import Comment
 from article.models import ArticlePost
 from .forms import CommentForm
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 # 文章评论
+@xframe_options_sameorigin
 @login_required(login_url='/userprofile/login/')
 def post_comment(request, article_id,parent_comment_id=None):
     article = get_object_or_404(ArticlePost, id=article_id)

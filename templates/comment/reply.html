@@ -7,10 +7,8 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
 </head>
-
 <body>
-    <form 
-    action="." 
+    <form action="." 
     method="POST"
     id="reply_form" 
     >
@@ -38,12 +36,19 @@
     });
 
     function confirm_submit(article_id, comment_id){
+        const csrfToken = window.parent.getCSRFToken();
+
+        // 检查是否有 csrf token
+        const content = CKEDITOR.instances['id_body'].getData();
+
         // 从 ckeditor 中取值
-        let content = CKEDITOR.instances['id_body'].getData();
         // 调用 ajax 与后端交换数据
         $.ajax({
             url: '/comment/post-comment/' + article_id + '/' + comment_id,
             type: 'POST',
+            headers: {
+                "X-CSRFToken": csrfToken  // 关键：添加 CSRF 请求头
+            },
             data: {body: content},
             // 成功回调
             success: function(e){

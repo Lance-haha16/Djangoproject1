@@ -85,7 +85,6 @@
         
     
     
-        <!-- 显示评论 -->
         {% load mptt_tags %}
 <h4>共有{{ comments.count }}条评论</h4>
 <div class="row">
@@ -150,7 +149,7 @@
                     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                         <div class="modal-content" style="height: 480px">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="exampleModalCenterTitle">回复 {{ comment.user }}：</h5>
+                                <h5 class="modal-title" id="exampleModalCenterTitle">回复 {{ comment.user }}:</h5>
                             </div>
                             <div class="modal-body" id="modal_body_{{ comment.id }}"></div>
                         </div>
@@ -198,7 +197,6 @@
 </script>
 
 {% block script %}
-<!-- 引入粘性侧边栏 -->
 <script src="{% static 'sticky_sidebar/jquery.sticky-sidebar.min.js' %}"></script>
 <script type="text/javascript">
     $('#sidebar').stickySidebar({
@@ -207,25 +205,43 @@
     });
 </script>
 <script>
-    // 加载 modal
+    // 加载 modal 并处理 CSRF Token
     function load_modal(article_id, comment_id) {
         let modal_body = '#modal_body_' + comment_id;
         let modal_id = '#comment_' + comment_id;
         
-        // 加载编辑器
         if ($(modal_body).children().length === 0) {
-            let content = '<iframe src="/comment/post-comment/' + 
-                article_id + 
-                '/' + 
-                comment_id + 
-                '"' + 
-                ' frameborder="0" style="width: 100%; height: 100%;" id="iframe_' + 
-                comment_id + 
-                '"></iframe>';
-            $(modal_body).append(content);
-        };
+            // 1. 创建 iframe
+            let iframe = $('<iframe>', {
+                src: '/comment/post-comment/' + article_id + '/' + comment_id,
+                frameborder: 0,
+                style: 'width: 100%; height: 100%;',
+                id: 'iframe_' + comment_id
+            });
+
+            // 2. 监听 iframe 加载完成事件
+            iframe.on('load', function() {
+                // 从父页面获取 CSRF Token
+                const csrfToken = $('[name=csrfmiddlewaretoken]').val();
+                // 向 iframe 内部传递 Token
+                iframe[0].contentWindow.postMessage(
+                    { 
+                        type: 'csrf_token', 
+                        token: csrfToken 
+                    },
+                    window.location.origin // 安全限制：仅同源
+                );
+            });
+
+            $(modal_body).append(iframe);
+        }
 
         $(modal_id).modal('show');
+    }
+
+    // 全局暴露获取 CSRF Token 的方法（供 iframe 调用）
+    function getCSRFToken() {
+        return $('[name=csrfmiddlewaretoken]').val();
     }
 </script>
 
