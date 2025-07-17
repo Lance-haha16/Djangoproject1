@@ -180,6 +180,12 @@
         transform: translate3d(0, 0, 0);
         will-change: position, transform;
     }
+
+    .child-comments {
+        margin-left: 20px; /* 子评论缩进 */
+        border-left: 2px  #ddd; /* 可选：添加左边框以区分层级 */
+        padding-left: 10px;
+    }
 </style>
 
   
@@ -204,6 +210,19 @@
         bottomSpacing: 20,
     });
 </script>
+
+<script>
+    function post_reply_and_show_it(new_comment_id) {
+        // 方式1：AJAX 获取新评论并插入
+        $.get('/comment/get-comment/' + new_comment_id, function(html) {
+            $('.children').first().append(html);
+        });
+        
+        // 方式2：直接刷新局部评论区域
+        // $('#comments-container').load(location.href + ' #comments-container');
+    }
+</script>
+
 <script>
     // 加载 modal 并处理 CSRF Token
     function load_modal(article_id, comment_id) {
@@ -248,6 +267,8 @@
 <script>
     $(".django-ckeditor-widget").removeAttr('style');
 </script>
+
+
 {% endblock script %}
 
 {% endblock content %}

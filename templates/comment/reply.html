@@ -47,20 +47,23 @@
             url: '/comment/post-comment/' + article_id + '/' + comment_id,
             type: 'POST',
             headers: {
-                "X-CSRFToken": csrfToken  // 关键：添加 CSRF 请求头
+                "X-CSRFToken": csrfToken
             },
             data: {body: content},
-            // 成功回调
-            success: function(e){
-
-                // if(e === '200 OK'){
-                //     parent.location.reload();
-                // }
-
-                if(e.code === '200 OK'){
-                    // 调用父页面的函数
-                    parent.post_reply_and_show_it(e.new_comment_id);
-                };
+            success: function(response) {
+                if (response.code === '200 OK') {
+                    // 插入新评论到所回复的评论后面
+                    const parentComment = $('#comment-' + comment_id); // 找到父评论的 DOM
+                    parentComment.after(response.comment_html);
+                    parent.location.reload();
+                    // 插入新评论 HTML
+                } else {
+                    console.error('Unexpected response:', response);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX Error:', status, error);
+                console.error('Response:', xhr.responseText);
             }
         });
     }
