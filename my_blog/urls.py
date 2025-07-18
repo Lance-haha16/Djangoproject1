@@ -19,6 +19,7 @@ from django.urls import path,include
 from django.conf import settings
 from django.conf.urls.static import static
 from article.views import article_list
+import notifications.urls
 
 
 
@@ -29,7 +30,8 @@ urlpatterns = [
     path('password-reset/', include('password_reset.urls')),
     path('comment/', include('comment.urls', namespace='comment')),
     path('', article_list, name='home'),
-
+    path('inbox/notifications/', include(notifications.urls, namespace='notifications')),
+    path('notice/', include('notice.urls', namespace='notice')),
 ]
 
 

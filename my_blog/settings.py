@@ -40,8 +40,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'ckeditor',
     'password_reset',
+    'notifications',
     'mptt',
     'article',
+    'notice',
+
     'userprofile',
     'comment',
     'taggit',
