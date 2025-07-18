@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path,include
 from django.conf import settings
 from django.conf.urls.static import static
+from article.views import article_list
 
 
 
@@ -27,8 +28,10 @@ urlpatterns = [
     path('userprofile/', include('userprofile.urls', namespace='userprofile')),
     path('password-reset/', include('password_reset.urls')),
     path('comment/', include('comment.urls', namespace='comment')),
+    path('', article_list, name='home'),
 
 ]
 
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+LOGIN_REDIRECT_URL = '/'
