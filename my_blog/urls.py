@@ -32,6 +32,8 @@ urlpatterns = [
     path('', article_list, name='home'),
     path('inbox/notifications/', include(notifications.urls, namespace='notifications')),
     path('notice/', include('notice.urls', namespace='notice')),
+    path('accounts/', include('allauth.urls')),
+
 ]
 
 
