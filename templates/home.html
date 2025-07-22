@@ -1,0 +1,287 @@
+{% extends "base1.html" %}
+{% load static %}
+
+{% block title %}首页 - Fly's 博客{% endblock %}
+
+{% block content %}
+<!-- 全屏动态星空画面+打字机 -->
+<div id="hero" style="
+    height: 100vh;
+    width: 100vw;
+    min-height: 500px;
+    background: #7b2ff2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+">
+    <!-- 星空canvas背景 -->
+    <canvas id="star-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;"></canvas>
+    <div style="margin-bottom: 32px; position:relative; z-index:2;">
+        <img src="{% static 'media/my.png' %}" alt="头像" style="width: 120px; height: 120px; border-radius: 50%; box-shadow: 0 4px 24px rgba(0,0,0,0.18); border: 4px solid #fff;">
+        <h1 style="
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #fff;
+    margin-top: 10px;
+    text-align: center;
+    z-index:2;
+    text-shadow:
+        0 4px 16px rgba(0,0,0,0.35),
+        0 1px 0 #333,
+        -1px -1px 0 #222,
+        1px -1px 0 #222,
+        -1px 1px 0 #222,
+        1px 1px 0 #222;
+">
+    林智
+</h1>
+        
+    </div>
+    <div style="white-space: nowrap; text-align: center; position:relative; z-index:2; margin-top: -30px;">
+        <span id="typed" style="font-size: 1.2rem; font-weight: bold; color: #fff;"></span>
+    </div>
+    <!-- 向下箭头提示 -->
+    <div style="position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); z-index:2;">
+        <a href="#main-content" style="text-decoration: none;">
+            <i class="fas fa-angle-down" style="font-size: 2.5rem; color: #acc8e5; animation: bounce 1.5s infinite;"></i>
+        </a>
+    </div>
+</div>
+
+<!-- 主内容区锚点 -->
+
+<div id="main-content" style="min-height: 1200px; padding-top: 60px; padding-bottom: 60px;">
+    <!-- 你的内容 -->
+</div>
+
+<!-- 功能/优势区 -->
+<div class="container" style="margin-top: 60px; margin-bottom: 60px;">
+    <div class="row text-center">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <i class="fas fa-pen-nib fa-2x mb-3" style="color: #007bff;"></i>
+                    <h5 class="card-title">原创文章</h5>
+                    <p class="card-text">分享技术、生活与思考，内容持续更新。</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <i class="fas fa-users fa-2x mb-3" style="color: #28a745;"></i>
+                    <h5 class="card-title">互动社区</h5>
+                    <p class="card-text">支持评论、点赞，与作者和其他读者交流。</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <i class="fas fa-bolt fa-2x mb-3" style="color: #ffc107;"></i>
+                    <h5 class="card-title">极致体验</h5>
+                    <p class="card-text">响应式设计，支持手机、平板和电脑访问。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+{{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // 打字机动画
+    new Typed('#typed', {
+        strings: [
+            "远行没有目的",
+            "距离不是问题",
+            "不爱了是你的谜底"
+        ],
+        typeSpeed: 60,
+        backSpeed: 30,
+        backDelay: 1800,
+        startDelay: 500,
+        loop: true,
+        showCursor: true,
+        cursorChar: '|'
+    });
+
+    // 星空与流星动画
+    const canvas = document.getElementById('star-canvas');
+    const ctx = canvas.getContext('2d');
+    let w, h;
+
+    function resizeCanvas() {
+        w = canvas.width = document.getElementById('hero').offsetWidth;
+        h = canvas.height = document.getElementById('hero').offsetHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', () => {
+        resizeCanvas();
+        createStars();
+    });
+
+    // 多层星星
+    const STAR_LAYERS = [
+        { num: 120, size: [0.5, 1.2], speed: 0.04, alpha: [0.5, 1] }, // 远
+        { num: 30, size: [1, 2], speed: 0.10, alpha: [0.7, 1] },     // 中
+        { num: 10, size: [1.5, 2.5], speed: 0.16, alpha: [0.8, 1] }  // 近
+    ];
+    let stars = [];
+    function createStars() {
+        stars = [];
+        STAR_LAYERS.forEach(layer => {
+            for (let i = 0; i < layer.num; i++) {
+                stars.push({
+                    x: Math.random() * w,
+                    y: Math.random() * h,
+                    r: Math.random() * (layer.size[1] - layer.size[0]) + layer.size[0],
+                    alpha: Math.random() * (layer.alpha[1] - layer.alpha[0]) + layer.alpha[0],
+                    vx: layer.speed * (Math.random() * 2.4 + 2.8),
+                    vy: layer.speed * (Math.random() * 1.2 + 1.4) // 速度较大且为正
+                });
+            }
+        });
+    }
+    createStars();
+
+    // 流星
+    let meteors = [];
+    function createMeteor() {
+        // 让流星更倾斜（20°~36°）
+        const minAngle = Math.PI / 9;  // 20°
+        const maxAngle = Math.PI / 5;  // 36°
+        const angle = minAngle + Math.random() * (maxAngle - minAngle);
+        meteors.push({
+            x: Math.random() * w * 0.8 + w * 0.1,
+            y: Math.random() * h * 0.3,
+            len: Math.random() * 120 + 120,
+            speed: Math.random() * 2 + 2,
+            angle: angle,
+            alpha: 1,
+            life: 0
+        });
+    }
+
+    let meteorTimer = 0;
+    let gradientAngle = 90; // 初始渐变角度
+
+    function draw() {
+        // 1. 动态渐变背景
+        gradientAngle += 0; // 让渐变角度缓慢变化
+        let rad = gradientAngle * Math.PI / 180;
+        let x1 = w/2 + Math.cos(rad) * w;
+        let y1 = h/2 + Math.sin(rad) * h;
+        let x2 = w/2 - Math.cos(rad) * w;
+        let y2 = h/2 - Math.sin(rad) * h;
+        let gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+        gradient.addColorStop(1,    '#432E54'); // 顶部
+        gradient.addColorStop(0.55, '#69648C'); // 第二段
+        gradient.addColorStop(0.3,  '#B66077'); // 第三段
+        gradient.addColorStop(0.15, '#B66077'); // 第四段
+        gradient.addColorStop(0,    '#E9CBE0'); // 底部
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, w, h);
+
+        // 2. 星星
+        for (let s of stars) {
+            ctx.save();
+            ctx.globalAlpha = s.alpha;
+            // 半径动态变化
+            let drawR = s.r;
+            if (s.x < w/2) {
+                // 线性插值，左侧最小0.4倍，越靠右越接近1倍
+                let ratio = s.x / (w/2); // 0~1
+                drawR = s.r * (0.4 + 0.6 * ratio);
+            }
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, drawR, 0, 2 * Math.PI);
+            ctx.fillStyle = '#fff';
+            ctx.shadowColor = '#fff';
+            ctx.shadowBlur = 8;
+            ctx.fill();
+            ctx.restore();
+
+            // 只向右移动
+            s.x += s.vx;
+            if (s.x > w) s.x = 0;
+            // 闪烁
+            s.alpha += (Math.random() - 0.5) * 0.02;
+            if (s.alpha < 0.3) s.alpha = 0.3;
+            if (s.alpha > 1) s.alpha = 1;
+            s.y += s.vy;
+            if (s.y > h) s.y = 0;
+        }
+
+        // 3. 流星
+        for (let i = meteors.length - 1; i >= 0; i--) {
+            let m = meteors[i];
+            ctx.save();
+            // 拖尾渐变，方向与流星一致
+            let meteorGrad = ctx.createLinearGradient(
+                m.x, m.y,
+                m.x - m.len * Math.cos(m.angle),
+                m.y - m.len * Math.sin(m.angle) // 注意这里是减号
+            );
+            meteorGrad.addColorStop(0, 'rgba(255,255,255,1)');
+            meteorGrad.addColorStop(0.2, 'rgba(255,255,255,0.6)');
+            meteorGrad.addColorStop(1, 'rgba(255,255,255,0)');
+            ctx.strokeStyle = meteorGrad;
+            ctx.beginPath();
+            ctx.moveTo(m.x, m.y);
+            // 拖尾线段应为 (m.x, m.y) 到 (tailX, tailY)。
+            let tailX = m.x - m.len * Math.cos(m.angle);
+            let tailY = m.y - m.len * Math.sin(m.angle);
+            ctx.lineTo(tailX, tailY);
+            ctx.lineWidth = 2.5;
+            ctx.shadowColor = '#fff';
+            ctx.shadowBlur = 16;
+            ctx.globalAlpha = m.alpha;
+            ctx.stroke();
+            ctx.restore();
+
+            // 头部光晕
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(m.x, m.y, 2.5, 0, 2 * Math.PI);
+            ctx.fillStyle = 'rgba(255,255,255,0.8)';
+            ctx.shadowColor = '#fff';
+            ctx.shadowBlur = 16;
+            ctx.globalAlpha = m.alpha;
+            ctx.fill();
+            ctx.restore();
+
+            // 运动
+            m.x += m.speed * Math.cos(m.angle);
+            m.y += m.speed * Math.sin(m.angle);
+            m.alpha -= 0.012;
+            m.life++;
+            if (m.alpha <= 0 || m.x < -200 || m.y > h + 200 || m.life > 120) meteors.splice(i, 1);
+        }
+
+        // 随机生成流星
+        meteorTimer++;
+        if (meteorTimer > 120 + Math.random() * 120) {
+            createMeteor();
+            meteorTimer = 0;
+        }
+
+        requestAnimationFrame(draw);
+    }
+    draw();
+});
+</script>
+<style>
+@keyframes bounce {
+  0%, 100% { transform: translateY(0);}
+  50% { transform: translateY(16px);}
+}
+</style>
+{% endblock %}
+

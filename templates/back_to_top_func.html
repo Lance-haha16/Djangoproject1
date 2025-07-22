@@ -1,8 +1,18 @@
-<button type="button" id="BackTop" class="toTop-arrow" style="z-index: 100;"></button>
+<button type="button" id="BackTop" class="toTop-arrow" style="z-index: 100;">
+    <span id="scrollPercent" style="color:rgb(255, 255, 255); font-weight:bold; font-size:1.2rem;"></span>
+
+</button>
 
 <script>
     // 向上滚动的函数
     $(function () {
+        function updateScrollPercent() {
+            var scrollTop = $(window).scrollTop();
+            var docHeight = $(document).height() - $(window).height();
+            var percent = docHeight > 0 ? Math.round(scrollTop / docHeight * 100) : 0;
+            $('#scrollPercent').text(percent + '%');
+        }
+
         $('#BackTop').click(function () {
             $('html,body').animate({scrollTop: 0}, 500);
         });
@@ -12,7 +22,11 @@
             } else {
                 $('#BackTop').stop().fadeOut(300);
             }
+            updateScrollPercent();
         }).scroll();
+
+        // 初始化
+        updateScrollPercent();
     });
 </script>
 
@@ -24,25 +38,17 @@
         padding: 0;
         margin: 0;
         border: 0;
-        border-radius: 33%;
+        border-radius: 80%;
         opacity: 0.7;
-        background: black;
+        background: rgb(31, 31, 31);
         cursor: pointer;
         position: fixed;
-        right: 1.5rem;
-        bottom: 1.5rem;
+        
         display: none;
     }
 
     /* 绘制按钮中的向上箭头 */
-    .toTop-arrow::before, .toTop-arrow::after {
-        width: 31px;
-        height: 7px;
-        border-radius: 3px;
-        background: orange;
-        position: absolute;
-        content: "";
-    }
+    
 
     .toTop-arrow::before {
         transform: rotate(-45deg) translate(0, -50%);

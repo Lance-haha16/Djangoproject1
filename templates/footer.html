@@ -3,8 +3,38 @@
 <div>
     <br><br><br>
 </div>
-<footer class="py-3 bg-dark ">
+<footer class="site-footer">
     <div class="container">
-        <p class="m-0 text-center text-white">Copyright &copy; www.flyfly.com 2025</p>
+        <p class="m-0 text-left text-dark" style="font-size: 1.2rem; font-weight: bold; padding-left: 32px;">
+            本站已创建
+            <span id="site-days-num" style="font-size:2.2rem; color:#ff5722; font-weight:bold;"></span>
+            天
+        </p>
+        <p class="m-0 text-left text-dark" style="padding-left: 32px;">
+            Copyright &copy; www.flyfly.com 2025
+        </p>
     </div>
 </footer>
+<script>
+  // 设置你的网站创建日期
+  var createDate = new Date('2024-07-01');
+  var now = new Date();
+  var diffTime = now - createDate;
+  var diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  document.getElementById('site-days-num').innerText = diffDays;
+</script>
+<style>
+.site-footer {
+    background: #f8f9fa;         /* 浅灰色背景，与正文区分 */
+    min-height: 230px;           /* 增高footer */
+    padding: 19px 0 0 0;      /* 上下内边距更大 */
+    border-top: 1px  #e0e0e0; /* 顶部细线 */
+    box-shadow: 0 -2px 16px rgba(0,0,0,0.04); /* 顶部淡阴影 */
+}
+.site-footer .container {
+    max-width: 1600px;
+}
+.site-footer .container p {
+    padding-left: 3px;
+}
+</style>

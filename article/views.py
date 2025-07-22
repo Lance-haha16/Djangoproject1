@@ -13,7 +13,8 @@ from comment.forms import CommentForm
 
 
 # Create your views here.
-
+def home(request):
+    return render(request, 'home.html')
 
 def article_list(request):
 
@@ -43,7 +44,7 @@ def article_list(request):
     # 查询集排序
     if order == 'total_views':
         article_list = article_list.order_by('-total_views')  
-    paginator = Paginator(article_list, 6)
+    paginator = Paginator(article_list, 10)
     page = request.GET.get('page')
     articles = paginator.get_page(page)
     
