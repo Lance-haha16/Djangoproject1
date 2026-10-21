@@ -1,0 +1,356 @@
+.archive-page {
+  width: 100%;
+  margin: 0 auto;
+  padding: 8px 0 40px;
+  min-height: 70vh;
+  overflow-x: clip;
+}
+
+.archive-heading {
+  width: min(1200px, 94vw);
+  margin: 0 auto 4px;
+  padding: 8px 0 0;
+}
+
+.archive-title {
+  margin: 0 0 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.55rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.96);
+  text-shadow: 0 2px 14px rgba(15, 23, 42, 0.45);
+}
+
+.archive-title i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  font-size: 1rem;
+  color: #93c5fd;
+  background: rgba(15, 23, 42, 0.35);
+  border: 1px solid rgba(147, 197, 253, 0.35);
+  line-height: 1;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.archive-subtitle {
+  margin: 0 0 8px;
+  color: rgba(226, 232, 240, 0.88);
+  font-size: 0.88rem;
+  text-shadow: 0 1px 8px rgba(15, 23, 42, 0.4);
+}
+
+.archive-stage {
+  position: relative;
+  width: 100vw;
+  max-width: 100vw;
+  margin-left: calc(50% - 50vw);
+  height: min(920px, 90vh);
+  overflow-x: auto;
+  overflow-y: hidden;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  cursor: grab;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+}
+
+.archive-stage.is-dragging {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.archive-stage::-webkit-scrollbar {
+  height: 7px;
+}
+
+.archive-stage::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+}
+
+#archive-canvas {
+  display: block;
+  height: 100%;
+}
+
+.archive-nodes {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.archive-item {
+  position: absolute;
+  width: 260px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.archive-card {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.62);
+  box-shadow:
+    0 12px 34px rgba(15, 23, 42, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(18px) saturate(1.25);
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
+  color: inherit;
+  text-decoration: none;
+  pointer-events: auto;
+  opacity: 0;
+  animation: archive-card-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  transition: transform 0.22s ease, background 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+.archive-card:hover {
+  background: linear-gradient(
+    165deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(255, 255, 255, 0.72) 100%
+  );
+  border-color: rgba(255, 255, 255, 0.85);
+  transform: translateY(-3px);
+  box-shadow:
+    0 16px 36px rgba(15, 23, 42, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.archive-card-cover {
+  width: 100%;
+  height: 128px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s ease;
+  background:
+    linear-gradient(135deg, rgba(59, 130, 246, 0.28), rgba(255, 255, 255, 0.15)),
+    #c7d7ef;
+}
+
+.archive-card:hover .archive-card-cover {
+  transform: scale(1.06);
+}
+
+.archive-card-cover.is-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(37, 99, 235, 0.55);
+  font-size: 1.55rem;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.55), transparent 55%),
+    linear-gradient(145deg, #dbeafe, #e2e8f0);
+}
+
+.archive-card-body {
+  padding: 12px 14px 13px;
+}
+
+.archive-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 7px;
+}
+
+.archive-card-date {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+
+.archive-card-date i {
+  font-size: 0.68rem;
+  line-height: 1;
+  color: #94a3b8;
+}
+
+.archive-card-kind {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.1);
+  color: #2563eb;
+  font-size: 0.66rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+}
+
+.archive-card-kind.is-ai {
+  background: rgba(139, 92, 246, 0.12);
+  color: #7c3aed;
+}
+
+.archive-card-kind.is-message {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+}
+
+.archive-card-kind.is-project {
+  background: rgba(245, 158, 11, 0.14);
+  color: #d97706;
+}
+
+.archive-card-title {
+  margin: 0 0 7px;
+  color: #0f172a;
+  font-size: 0.98rem;
+  font-weight: 700;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.archive-card-snippet {
+  margin: 0 0 12px;
+  color: #64748b;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2.3em;
+}
+
+.archive-card-meta {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding-top: 2px;
+  color: #94a3b8;
+  font-size: 0.74rem;
+}
+
+.archive-card-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.archive-card-meta i {
+  font-size: 0.72rem;
+  line-height: 1;
+}
+
+.archive-node-date {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: none;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  pointer-events: none;
+}
+
+.archive-stem {
+  position: absolute;
+  left: 50%;
+  width: 2px;
+  background: linear-gradient(
+    180deg,
+    rgba(191, 219, 254, 0.05),
+    rgba(255, 255, 255, 0.85),
+    rgba(191, 219, 254, 0.05)
+  );
+  box-shadow: 0 0 8px rgba(147, 197, 253, 0.45);
+  transform: translateX(-50%);
+  pointer-events: none;
+  border-radius: 2px;
+}
+
+.archive-item.is-above .archive-stem {
+  bottom: 0;
+}
+
+.archive-item.is-below .archive-stem {
+  top: 0;
+}
+
+.archive-item.is-above .archive-node-date {
+  bottom: -26px;
+}
+
+.archive-item.is-below .archive-node-date {
+  top: -26px;
+}
+
+.archive-card-empty {
+  margin: 0;
+  padding: 18px 22px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(10px);
+  color: #475569;
+  font-size: 0.9rem;
+}
+
+.archive-hint {
+  width: min(1200px, 94vw);
+  margin: 12px auto 0;
+  color: rgba(226, 232, 240, 0.75);
+  font-size: 0.78rem;
+  text-align: center;
+  text-shadow: 0 1px 6px rgba(15, 23, 42, 0.35);
+}
+
+@keyframes archive-card-in {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 760px) {
+  .archive-stage {
+    height: min(780px, 88vh);
+  }
+
+  .archive-item {
+    width: 200px;
+  }
+
+  .archive-card-cover {
+    height: 88px;
+  }
+
+  .archive-title {
+    font-size: 1.35rem;
+  }
+}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - Fly's 博客{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'site/archive.css' %}?v=10">
+
+<div class="archive-page">
+    <div class="archive-heading">
+        <h1 class="archive-title">
+            <i class="fi fi-rs-calendar" aria-hidden="true"></i>
+            {{ title }}
+        </h1>
+        <p class="archive-subtitle">时光河流 · 共 {{ archive_total }} 处足迹</p>
+    </div>
+
+    <div class="archive-stage" id="archive-stage">
+        <canvas id="archive-canvas" aria-hidden="true"></canvas>
+        <div class="archive-nodes" id="archive-nodes"></div>
+    </div>
+
+    <p class="archive-hint">左右拖动 · 沿河浏览</p>
+</div>
+
+{{ archive_events|json_script:"archive-data" }}
+<script src="{% static 'site/archive.js' %}?v=9"></script>
+{% endblock %}
