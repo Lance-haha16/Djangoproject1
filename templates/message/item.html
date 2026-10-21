@@ -1,0 +1,77 @@
+{% load static %}
+<div class="message-card">
+    <div class="message-meta">
+        {% if message.author_avatar %}
+            <img src="{{ message.author_avatar }}" alt="{{ message.author_name }}">
+        {% else %}
+            <img src="{% static 'media/default-avatar.png' %}" alt="{{ message.author_name }}">
+        {% endif %}
+        <strong>{{ message.author_name }}</strong>
+        <span class="message-time">{{ message.created|date:"Y-m-d H:i" }}</span>
+    </div>
+    <div class="message-body">{{ message.body }}</div>
+    <div class="message-actions">
+        <form method="post" action="{% url 'message:message_like' message.id %}">
+            {% csrf_token %}
+            <button type="submit" title="点赞">
+                {% if user.is_authenticated and user in message.likes.all %}
+                <i class="fa-solid fa-heart"></i>
+                {% else %}
+                <i class="fa-regular fa-heart"></i>
+                {% endif %}
+            </button>
+            <span>{{ message.likes.count }}</span>
+        </form>
+        <button
+            type="button"
+            class="message-reply-toggle"
+            {% if user.is_authenticated %}data-target="reply-{{ message.id }}"{% endif %}
+            data-replies="replies-{{ message.id }}"
+            aria-expanded="false"
+            title="展开回复"
+        >
+            <i class="fi fi-rr-comment-alt-middle"></i>
+            {% if message.children.count %}<span class="message-reply-count">{{ message.children.count }}</span>{% endif %}
+        </button>
+        {% if not user.is_authenticated %}
+        <a href="/accounts/github/login/?next={{ request.path }}">登录后回复</a>
+        {% endif %}
+        {% if user == message.author %}
+        <form
+            style="display:none;"
+            id="message_delete_{{ message.id }}"
+            action="{% url 'message:message_delete' message.id %}"
+            method="POST"
+        >
+            {% csrf_token %}
+            <button type="submit">发送</button>
+        </form>
+        <button type="button" onclick="confirm_message_delete({{ message.id }})">删除</button>
+        {% endif %}
+    </div>
+
+    {% if user.is_authenticated %}
+    <form method="post" action="{% url 'message:message_post' %}" id="reply-{{ message.id }}" class="message-reply-box">
+        {% csrf_token %}
+        <input type="hidden" name="parent" value="{{ message.id }}">
+        <textarea class="message-typebox" name="body" required placeholder="回复 {{ message.author_name }}"></textarea>
+        <button type="submit" class="btn btn-outline-dark btn-sm mt-2">发送回复</button>
+    </form>
+    {% endif %}
+
+    {% if message.reply_list %}
+    <div class="message-replies" id="replies-{{ message.id }}">
+        {% for reply in message.reply_list %}
+        <div class="message-reply">
+            {% include "message/item.html" with message=reply %}
+        </div>
+        {% endfor %}
+        <button
+            type="button"
+            class="message-more-toggle"
+            data-more="浏览更多留言"
+            data-less="收起留言"
+        >浏览更多留言</button>
+    </div>
+    {% endif %}
+</div>

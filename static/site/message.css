@@ -1,0 +1,232 @@
+.message-login-box,
+.message-card,
+.message-typebox {
+    border: 1px solid rgba(40, 48, 64, 0.18);
+    border-radius: 16px;
+    background: #fff;
+}
+
+.message-column {
+    width: min(640px, 100%);
+    margin: 0 auto;
+}
+
+.message-page-title {
+    display: flex;
+    align-items: center;
+    gap: 0.35em;
+    margin-bottom: 16px;
+    font-size: 1.35rem;
+}
+
+.message-page-title i {
+    font-size: 1.05em;
+    opacity: 0.85;
+}
+
+.message-login-box {
+    padding: 20px 18px;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.message-typebox {
+    width: 100%;
+    height: 108px;
+    padding: 10px 12px;
+    resize: none;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+.message-body {
+    width: 100%;
+    height: auto;
+    white-space: pre-wrap;
+    overflow: visible;
+}
+
+.message-card {
+    padding: 12px 14px;
+    margin-bottom: 12px;
+}
+
+.message-user-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+}
+
+.message-user-main {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.message-user-box img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.message-time {
+    margin-left: auto;
+    color: #6c757d;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.message-reply {
+    margin-top: 10px;
+}
+
+.message-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.message-meta img,
+.message-avatar-fallback {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #e9ecef;
+    flex: 0 0 auto;
+}
+
+.message-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 10px;
+}
+
+.message-actions form,
+.message-reply-form {
+    display: inline;
+    margin: 0;
+}
+
+.message-actions button,
+.message-reply-toggle,
+.message-more-toggle {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    color: #333;
+    cursor: pointer;
+}
+
+.message-reply-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.2s, transform 0.2s;
+}
+
+.message-reply-toggle:hover {
+    color: #1d6fb8;
+    transform: scale(1.06);
+}
+
+.message-reply-toggle.is-open {
+    color: #1d6fb8;
+}
+
+.message-reply-count {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.message-reply-toggle.is-open .message-reply-count {
+    color: #1d6fb8;
+}
+
+.message-more-toggle {
+    display: none;
+    margin-top: 10px;
+    color: #1d6fb8;
+}
+
+/* 回复输入框：弹出 */
+.message-reply-box {
+    display: none;
+    margin-top: 10px;
+    transform-origin: top center;
+}
+
+.message-reply-box.open {
+    display: block;
+    animation: message-pop-in 0.38s cubic-bezier(0.22, 1.2, 0.36, 1) both;
+}
+
+/* 次级留言/评论：默认收起，展开时弹出 */
+.message-replies {
+    display: none;
+    margin-top: 10px;
+    padding-left: 12px;
+    border-left: 2px solid rgba(29, 111, 184, 0.18);
+    transform-origin: top left;
+}
+
+.message-replies.is-expanded {
+    display: block;
+    animation: message-pop-in 0.4s cubic-bezier(0.22, 1.2, 0.36, 1) both;
+}
+
+.message-replies > *:not(.message-more-toggle) {
+    display: none;
+}
+
+.message-replies > *.is-shown {
+    display: block;
+    animation: message-reply-pop 0.42s cubic-bezier(0.22, 1.2, 0.36, 1) both;
+}
+
+.message-replies > .message-more-toggle.is-shown {
+    display: inline-block;
+    animation: message-reply-pop 0.35s cubic-bezier(0.22, 1.2, 0.36, 1) both;
+}
+
+@keyframes message-pop-in {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.92);
+    }
+    70% {
+        opacity: 1;
+        transform: translateY(2px) scale(1.02);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes message-reply-pop {
+    0% {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.94);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .message-reply-box.open,
+    .message-replies.is-expanded,
+    .message-replies > *.is-shown,
+    .message-replies > .message-more-toggle.is-shown {
+        animation: none;
+    }
+}
