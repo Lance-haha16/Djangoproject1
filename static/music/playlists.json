@@ -1,0 +1,70 @@
+[
+  {
+    "id": "late-night",
+    "name": "深夜电台",
+    "tracks": [
+      {
+        "id": "helix-1",
+        "title": "SoundHelix Song 1",
+        "artist": "T. Schürger",
+        "src": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+        "cover": "",
+        "lyrics": [
+          { "t": 0, "text": "示例曲目 · 可替换为你的本地音乐" },
+          { "t": 8, "text": "把 mp3 放到 static/music/tracks/" },
+          { "t": 16, "text": "并在 playlists.json 里填写路径与歌词" },
+          { "t": 24, "text": "歌词会随播放进度高亮" },
+          { "t": 40, "text": "……" }
+        ]
+      },
+      {
+        "id": "helix-2",
+        "title": "SoundHelix Song 2",
+        "artist": "T. Schürger",
+        "src": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+        "cover": "",
+        "lyrics": [
+          { "t": 0, "text": "同一歌单的下一首" },
+          { "t": 10, "text": "点左侧歌单可切换整份列表" },
+          { "t": 20, "text": "点曲目名称即可切歌" }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "focus",
+    "name": "专注时刻",
+    "tracks": [
+      {
+        "id": "helix-3",
+        "title": "SoundHelix Song 3",
+        "artist": "T. Schürger",
+        "src": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+        "cover": "",
+        "lyrics": [
+          { "t": 0, "text": "专注歌单" },
+          { "t": 12, "text": "适合写代码的背景声" },
+          { "t": 28, "text": "你也可以改成自己的收藏" }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "memory",
+    "name": "旧日回声",
+    "tracks": [
+      {
+        "id": "helix-4",
+        "title": "SoundHelix Song 4",
+        "artist": "T. Schürger",
+        "src": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
+        "cover": "",
+        "lyrics": [
+          { "t": 0, "text": "旧日回声" },
+          { "t": 14, "text": "把怀念的歌放进这个歌单" },
+          { "t": 30, "text": "歌词框会跟着当前歌走" }
+        ]
+      }
+    ]
+  }
+]

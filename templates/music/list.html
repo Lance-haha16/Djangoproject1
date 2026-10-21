@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - Fly's 博客{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'site/music.css' %}?v=9">
+
+<div class="music-page" id="music-app" data-playlists="{% url 'workstation:api_music' %}">
+    <div class="music-shell">
+        <header class="music-top">
+            <h1 class="music-title">{{ title }}</h1>
+            <p class="music-subtitle">私人歌单 · 边听边看词</p>
+        </header>
+
+        <div class="music-layout">
+            <section class="music-panel-card music-left">
+                <div class="music-cover-stage">
+                    <div class="music-vinyl" id="music-vinyl" aria-hidden="true"></div>
+                    <div class="music-cover-sq" id="music-cover">
+                        <i class="fi fi-rs-music-alt"></i>
+                    </div>
+                </div>
+
+                <h2 class="music-track-title" id="music-title">选择一首歌</h2>
+                <p class="music-track-artist" id="music-artist">—</p>
+
+                <div class="music-progress-row">
+                    <span class="music-time" id="music-time-current">0:00</span>
+                    <input type="range" class="music-progress" id="music-progress" min="0" max="1000" value="0" aria-label="播放进度">
+                    <span class="music-time is-end" id="music-time-total">0:00</span>
+                </div>
+
+                <div class="music-controls">
+                    <button type="button" class="music-btn music-btn-mode" id="music-mode" title="播放模式：顺序">
+                        <i class="fas fa-arrows-rotate"></i>
+                    </button>
+                    <button type="button" class="music-btn music-btn-side" id="music-prev" title="上一首">
+                        <i class="fas fa-backward-step"></i>
+                    </button>
+                    <button type="button" class="music-btn music-btn-play" id="music-play" title="播放/暂停">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <button type="button" class="music-btn music-btn-side" id="music-next" title="下一首">
+                        <i class="fas fa-forward-step"></i>
+                    </button>
+                    <div class="music-volume">
+                        <i class="fas fa-volume-low"></i>
+                        <input type="range" class="music-volume-range" id="music-volume" min="0" max="100" value="80" aria-label="音量">
+                    </div>
+                </div>
+                <audio id="music-audio" preload="metadata" hidden></audio>
+            </section>
+
+            <section class="music-panel-card music-right">
+                <div class="music-tabs" role="tablist">
+                    <button type="button" class="music-tab is-active" data-panel="lyrics" role="tab" aria-selected="true">歌词</button>
+                    <button type="button" class="music-tab" data-panel="playlist" role="tab" aria-selected="false">歌单</button>
+                </div>
+                <div class="music-panel is-active" id="music-panel-lyrics" role="tabpanel">
+                    <div class="music-lyrics" id="music-lyrics">
+                        <p class="music-empty">正在加载…</p>
+                    </div>
+                </div>
+                <div class="music-panel" id="music-panel-playlist" role="tabpanel" hidden>
+                    <input type="search" class="music-search" id="music-search" placeholder="搜索歌曲、歌手" autocomplete="off">
+                    <div class="music-playlist-view" id="music-playlist-view"></div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'site/music.js' %}?v=11"></script>
+{% endblock %}
