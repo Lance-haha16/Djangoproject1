@@ -8,6 +8,7 @@ https://docs.djangoproject.com/en/5.2/howto/deployment/asgi/
 """
 
 import os
+import setuptools  # Python 3.13 需要先加载，django-notifications 才能用到 distutils
 
 from django.core.asgi import get_asgi_application
 

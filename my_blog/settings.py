@@ -52,13 +52,13 @@ INSTALLED_APPS = [
     'notifications',
     'mptt',
     'article',
+    'message',
     'notice',
 
     'userprofile',
     'comment',
     'taggit',
-    
-
+    'workstation',
 ]
 
 MIDDLEWARE = [
@@ -84,6 +84,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'workstation.context_processors.site_appearance',
             ],
         },
     },
@@ -168,6 +169,26 @@ DEFAULT_FROM_EMAIL = 'fly的博客 <2965429048@qq.com'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+
+# Allow workstation wallpaper uploads up to 100MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+
+
+# GitHub projects page
+GITHUB_PROJECTS_USER = os.environ.get('GITHUB_PROJECTS_USER', 'Lance-haha16')
+GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN', '')
+
+# Archive AI summarization (workstation). Default stub; set provider=openai + key to go live.
+ARCHIVE_AI_PROVIDER = os.environ.get('ARCHIVE_AI_PROVIDER', 'stub')
+ARCHIVE_AI_API_KEY = os.environ.get('ARCHIVE_AI_API_KEY', '')
+ARCHIVE_AI_MODEL = os.environ.get('ARCHIVE_AI_MODEL', 'gpt-4o-mini')
+
+# Pixel cat (CyberCat) — set GEMINI_API_KEY to enable live chat
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
+CAT_AI_PROVIDER = os.environ.get('CAT_AI_PROVIDER', '')  # empty → gemini if key else stub
+CAT_AI_MODEL = os.environ.get('CAT_AI_MODEL', 'gemini-2.0-flash')
+CAT_AI_SYSTEM_PROMPT = os.environ.get('CAT_AI_SYSTEM_PROMPT', '')
 
 CKEDITOR_CONFIGS = {
     # django-ckeditor默认使用default配置

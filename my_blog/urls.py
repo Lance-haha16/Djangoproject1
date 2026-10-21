@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path,include
 from django.conf import settings
 from django.conf.urls.static import static
-from article.views import home
+from article.views import home, music_float, section_page
 import notifications.urls
 
 
@@ -26,13 +26,17 @@ import notifications.urls
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('article/', include('article.urls',namespace='article')),
+    path('message/', include('message.urls', namespace='message')),
     path('userprofile/', include('userprofile.urls', namespace='userprofile')),
     path('password-reset/', include('password_reset.urls')),
     path('comment/', include('comment.urls', namespace='comment')),
     path('', home, name='home'),
+    path('music/float/', music_float, name='music_float'),
+    path('section/<slug:slug>/', section_page, name='section'),
     path('inbox/notifications/', include(notifications.urls, namespace='notifications')),
     path('notice/', include('notice.urls', namespace='notice')),
     path('accounts/', include('allauth.urls')),
+    path('workstation/', include('workstation.urls', namespace='workstation')),
 
 ]
 

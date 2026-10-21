@@ -2,6 +2,7 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+import setuptools  # Python 3.13 需要先加载，django-notifications 才能用到 distutils
 
 
 def main():
