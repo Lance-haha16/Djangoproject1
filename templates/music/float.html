@@ -1,0 +1,22 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>迷你播放器</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-straight/css/uicons-regular-straight.css">
+  <style>
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: #1a1a1a;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  {% include "includes/mini_player.html" with mini_player_mode="window" %}
+</body>
+</html>

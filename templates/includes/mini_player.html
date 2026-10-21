@@ -1,0 +1,44 @@
+{% load static %}
+<div
+  id="site-mini-player"
+  class="smp"
+  data-api="{% url 'workstation:api_music' %}"
+  data-turbo-permanent
+  hidden
+>
+  <link rel="stylesheet" href="{% static 'site/mini-player.css' %}?v=6">
+  <audio id="smp-audio" preload="metadata"></audio>
+
+  <button type="button" class="smp-edge" id="smp-edge" title="点击或向外拉出" aria-label="展开播放器" hidden>
+    <img id="smp-edge-cover" alt="" hidden>
+    <i class="fi fi-rs-music-alt" id="smp-edge-fallback"></i>
+  </button>
+
+  <div class="smp-card" id="smp-card" title="按住拖动">
+    <div class="smp-cover" id="smp-cover">
+      <img id="smp-cover-img" alt="" hidden>
+      <i class="fi fi-rs-music-alt" id="smp-cover-fallback"></i>
+    </div>
+
+    <div class="smp-controls">
+      <button type="button" class="smp-btn" id="smp-prev" title="上一首" aria-label="上一首">
+        <i class="fas fa-backward-step"></i>
+      </button>
+      <button type="button" class="smp-btn smp-btn-play" id="smp-play" title="播放/暂停" aria-label="播放/暂停">
+        <i class="fas fa-play"></i>
+      </button>
+      <button type="button" class="smp-btn" id="smp-next" title="下一首" aria-label="下一首">
+        <i class="fas fa-forward-step"></i>
+      </button>
+    </div>
+
+    <div class="smp-vol" id="smp-vol">
+      <button type="button" class="smp-btn" id="smp-mute" title="音量" aria-label="音量">
+        <i class="fas fa-volume-low" id="smp-vol-icon"></i>
+      </button>
+      <input type="range" class="smp-vol-range" id="smp-vol-range" min="0" max="100" value="80" aria-label="音量调节">
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'site/mini-player.js' %}?v=6"></script>
