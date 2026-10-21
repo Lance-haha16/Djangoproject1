@@ -1,0 +1,84 @@
+{% extends "workstation/base.html" %}
+
+{% block workstation %}
+<h1 class="ws-title">全站外观</h1>
+<p class="ws-sub">设置访客默认背景。可选用预设，也可上传自己的壁纸（≤100MB）。</p>
+
+<form class="ws-panel" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="upload">
+    <div class="ws-form-row">
+        <label>上传壁纸</label>
+        <input type="file" name="wallpaper" accept="image/jpeg,image/png,image/webp,image/gif" required>
+    </div>
+    <div class="ws-form-row">
+        <label>名称（可空）</label>
+        <input type="text" name="title" placeholder="例如：竹林黄昏">
+    </div>
+    <div class="ws-actions">
+        <button type="submit" class="ws-btn ws-btn-primary">上传并设为当前背景</button>
+    </div>
+</form>
+
+{% if uploads %}
+<div class="ws-panel">
+    <div class="ws-form-row" style="margin-bottom:0">
+        <label>已上传（点选后到下方保存；角标可删）</label>
+        <div class="ws-preset-grid">
+            {% for paper in uploads %}
+            <div class="ws-preset-wrap">
+                <label class="ws-preset {% if appearance.background == paper.url %}is-on{% endif %}" for="bg-upload-{{ paper.id }}">
+                    <input
+                        form="ws-appearance-save"
+                        type="radio"
+                        id="bg-upload-{{ paper.id }}"
+                        name="background"
+                        value="{{ paper.url }}"
+                        {% if appearance.background == paper.url %}checked{% endif %}
+                    >
+                    <img src="{{ paper.url }}" alt="{{ paper.title }}">
+                    <span>{{ paper.title|default:"未命名" }}</span>
+                </label>
+                <form method="post" onsubmit="return confirm('删除这张壁纸？');">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete_wallpaper">
+                    <input type="hidden" name="wallpaper_id" value="{{ paper.id }}">
+                    <button type="submit" class="ws-preset-del">删</button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<form class="ws-panel" method="post" id="ws-appearance-save">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="save">
+    <div class="ws-form-row">
+        <label>预设壁纸</label>
+        <div class="ws-preset-grid">
+            {% for src, label in presets %}
+            <label class="ws-preset {% if appearance.background == src %}is-on{% endif %}">
+                <input type="radio" name="background" value="{{ src }}" {% if appearance.background == src %}checked{% endif %}>
+                {% if src %}
+                <img src="{{ src }}" alt="{{ label }}">
+                {% endif %}
+                <span>{{ label }}</span>
+            </label>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="ws-form-row">
+        <label>背景模糊（0–20）</label>
+        <input type="number" name="blur" min="0" max="20" value="{{ appearance.blur }}">
+    </div>
+    <label class="ws-check">
+        <input type="checkbox" name="season" {% if appearance.season %}checked{% endif %}>
+        默认开启季节特效
+    </label>
+    <div class="ws-actions">
+        <button type="submit" class="ws-btn ws-btn-primary">保存全站外观</button>
+    </div>
+</form>
+{% endblock %}

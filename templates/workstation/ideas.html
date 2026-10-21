@@ -1,0 +1,56 @@
+{% extends "workstation/base.html" %}
+
+{% block workstation %}
+<h1 class="ws-title">灵感</h1>
+<p class="ws-sub">写短想法，发布后会出现在前台「灵感」页。</p>
+
+<form class="ws-panel" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="save">
+    {% if editing %}<input type="hidden" name="id" value="{{ editing.id }}">{% endif %}
+    <div class="ws-form-row">
+        <label>标题</label>
+        <input type="text" name="title" value="{{ editing.title|default:'' }}" required>
+    </div>
+    <div class="ws-form-row">
+        <label>内容</label>
+        <textarea name="body" style="font-family:inherit;min-height:140px" required>{{ editing.body|default:'' }}</textarea>
+    </div>
+    <label class="ws-check">
+        <input type="checkbox" name="is_published" {% if not editing or editing.is_published %}checked{% endif %}>
+        公开发布
+    </label>
+    <div class="ws-actions">
+        <button type="submit" class="ws-btn ws-btn-primary">{% if editing %}更新{% else %}发布灵感{% endif %}</button>
+        {% if editing %}<a class="ws-btn" href="{% url 'workstation:ideas' %}">取消</a>{% endif %}
+    </div>
+</form>
+
+<div class="ws-panel">
+    <table class="ws-table">
+        <thead><tr><th>灵感</th><th>时间</th><th></th></tr></thead>
+        <tbody>
+            {% for n in notes %}
+            <tr>
+                <td>
+                    <strong>{{ n.title }}</strong>
+                    <div class="ws-muted">{% if n.is_published %}已发布{% else %}草稿{% endif %}</div>
+                </td>
+                <td class="ws-muted">{{ n.created|date:"Y-m-d H:i" }}</td>
+                <td>
+                    <a class="ws-btn" href="?edit={{ n.id }}">编辑</a>
+                    <form method="post" style="display:inline" onsubmit="return confirm('确定删除？');">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="delete">
+                        <input type="hidden" name="id" value="{{ n.id }}">
+                        <button class="ws-btn ws-btn-danger" type="submit">删除</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3" class="ws-muted">还没有灵感笔记。</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

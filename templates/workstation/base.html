@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} · 工作台 - Fly's 博客{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'site/workstation.css' %}?v=5">
+
+<div class="ws-page">
+    <aside class="ws-side">
+        <a class="ws-brand" href="{% url 'workstation:dashboard' %}">站长工作台</a>
+        <nav class="ws-nav">
+            <a class="ws-nav-link {% if module == 'dashboard' or not module %}is-active{% endif %}" href="{% url 'workstation:dashboard' %}">总览</a>
+            <a class="ws-nav-link {% if module == 'appearance' %}is-active{% endif %}" href="{% url 'workstation:appearance' %}">外观</a>
+            <a class="ws-nav-link {% if module == 'living' %}is-active{% endif %}" href="{% url 'workstation:living' %}">家居</a>
+            <a class="ws-nav-link {% if module == 'ideas' %}is-active{% endif %}" href="{% url 'workstation:ideas' %}">灵感</a>
+            <a class="ws-nav-link {% if module == 'music' %}is-active{% endif %}" href="{% url 'workstation:music' %}">歌单</a>
+            <a class="ws-nav-link {% if module == 'projects' %}is-active{% endif %}" href="{% url 'workstation:projects' %}">项目橱窗</a>
+            <a class="ws-nav-link {% if module == 'archive' %}is-active{% endif %}" href="{% url 'workstation:archive' %}">归档</a>
+            <a class="ws-nav-link {% if module == 'content' %}is-active{% endif %}" href="{% url 'workstation:content' %}">内容清理</a>
+        </nav>
+        <a class="ws-back" href="{% url 'home' %}">← 返回站点</a>
+        <a class="ws-admin" href="/admin/">Django Admin</a>
+    </aside>
+
+    <div class="ws-main">
+        {% if messages %}
+        <div class="ws-flash">
+            {% for message in messages %}
+            <p class="ws-flash-item">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% block workstation %}{% endblock %}
+    </div>
+</div>
+{% endblock %}

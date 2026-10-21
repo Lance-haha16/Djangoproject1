@@ -1,0 +1,147 @@
+{% extends "workstation/base.html" %}
+
+{% block workstation %}
+<div class="ws-arch-head">
+    <div>
+        <h1 class="ws-title">归档</h1>
+        <p class="ws-sub" style="margin-bottom:0">手打卡片进时光河流；AI 可先出草稿，改完再公开。</p>
+    </div>
+    <a class="ws-btn" href="{% url 'section' 'archive' %}" target="_blank" rel="noopener">预览前台</a>
+</div>
+
+<div class="ws-arch">
+    <aside class="ws-arch-side">
+        <div class="ws-arch-side-top">
+            <span class="ws-arch-count">{{ entries|length }} 条</span>
+            <a class="ws-btn ws-btn-primary ws-btn-sm" href="{% url 'workstation:archive' %}">新建</a>
+        </div>
+        <div class="ws-arch-list">
+            {% for e in entries %}
+            <a class="ws-arch-item {% if editing and editing.id == e.id %}is-active{% endif %}" href="?edit={{ e.id }}">
+                <div class="ws-arch-item-row">
+                    <span class="ws-arch-badge ws-arch-badge-{{ e.kind }}">{{ e.get_kind_display }}</span>
+                    {% if e.is_published %}
+                    <span class="ws-arch-dot is-on" title="公开"></span>
+                    {% else %}
+                    <span class="ws-arch-dot" title="草稿"></span>
+                    {% endif %}
+                </div>
+                <strong class="ws-arch-item-title">{{ e.title }}</strong>
+                <span class="ws-arch-item-meta">{{ e.event_at|date:"Y.n.j H:i" }} · {{ e.get_source_display }}</span>
+            </a>
+            {% empty %}
+            <p class="ws-muted" style="padding:12px 4px">还没有条目，右侧写一条或用 AI 生成。</p>
+            {% endfor %}
+        </div>
+    </aside>
+
+    <div class="ws-arch-main">
+        <details class="ws-arch-ai"{% if not editing %} open{% endif %}>
+            <summary>
+                <span>AI 总结</span>
+                <span class="ws-muted">按月汇总素材 → 草稿</span>
+            </summary>
+            <form method="post" class="ws-arch-ai-body">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="ai_draft">
+                <div class="ws-arch-ai-row">
+                    <label>年 <input type="number" name="year" value="{{ ai_year }}" min="2000" max="2100"></label>
+                    <label>月 <input type="number" name="month" value="{{ ai_month }}" min="1" max="12"></label>
+                </div>
+                <input type="text" name="ai_prompt" placeholder="提示词，例如：偏生活向，语气轻松">
+                <textarea name="ai_extra" rows="2" placeholder="补充素材（可选）"></textarea>
+                <div class="ws-actions">
+                    <button type="submit" class="ws-btn ws-btn-primary">生成草稿</button>
+                    <span class="ws-muted">默认 stub；接 OpenAI 设 ARCHIVE_AI_PROVIDER / KEY</span>
+                </div>
+            </form>
+        </details>
+
+        <div class="ws-arch-editor-wrap">
+            <div class="ws-arch-editor-head">
+                <h2>{% if editing %}编辑条目{% else %}手打新条目{% endif %}</h2>
+                {% if editing %}
+                <form method="post" onsubmit="return confirm('删除该归档条目？');">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete">
+                    <input type="hidden" name="id" value="{{ editing.id }}">
+                    <button type="submit" class="ws-btn ws-btn-danger ws-btn-sm">删除</button>
+                </form>
+                {% endif %}
+            </div>
+
+            <form class="ws-arch-editor" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="save">
+                {% if editing %}<input type="hidden" name="id" value="{{ editing.id }}">{% endif %}
+
+                <div class="ws-form-row">
+                    <label>标题</label>
+                    <input type="text" name="title" value="{{ editing.title|default:'' }}" required placeholder="会出现在时光河流卡片上">
+                </div>
+
+                <div class="ws-inline-fields">
+                    <div class="ws-form-row">
+                        <label>类型</label>
+                        <select name="kind">
+                            {% for value, label in kind_choices %}
+                            <option value="{{ value }}" {% if editing.kind == value or not editing and value == 'manual' %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="ws-form-row">
+                        <label>时间落点</label>
+                        <input type="datetime-local" name="event_at" value="{{ event_at_value }}">
+                    </div>
+                </div>
+
+                <div class="ws-form-row">
+                    <label>短摘要</label>
+                    <input type="text" name="snippet" value="{{ editing.snippet|default:'' }}" maxlength="240" placeholder="卡片上的一两句话">
+                </div>
+
+                <div class="ws-form-row">
+                    <label>正文</label>
+                    <textarea name="body" rows="6" style="font-family:inherit" placeholder="完整内容 / AI 总结正文">{{ editing.body|default:'' }}</textarea>
+                </div>
+
+                <div class="ws-inline-fields">
+                    <div class="ws-form-row">
+                        <label>封面 URL</label>
+                        <input type="text" name="cover" value="{{ editing.cover|default:'' }}" placeholder="https:// 或 /media/...">
+                    </div>
+                    <div class="ws-form-row">
+                        <label>上传封面</label>
+                        <input type="file" name="cover_file" accept="image/*">
+                    </div>
+                </div>
+
+                <div class="ws-form-row">
+                    <label>跳转链接</label>
+                    <input type="text" name="url" value="{{ editing.url|default:'' }}" placeholder="/article/... 或外链">
+                </div>
+
+                {% if editing and editing.source == 'ai' %}
+                <div class="ws-arch-ai-note">
+                    <p class="ws-muted" style="margin:0 0 6px">来源 AI · {{ editing.get_ai_status_display }}</p>
+                    <textarea name="ai_prompt" rows="2" placeholder="AI 提示词">{{ editing.ai_prompt }}</textarea>
+                </div>
+                {% else %}
+                <input type="hidden" name="source" value="manual">
+                {% endif %}
+
+                <div class="ws-arch-footer">
+                    <label class="ws-check">
+                        <input type="checkbox" name="is_published" {% if not editing or editing.is_published %}checked{% endif %}>
+                        在时光河流公开
+                    </label>
+                    <div class="ws-actions" style="margin:0">
+                        {% if editing %}<a class="ws-btn" href="{% url 'workstation:archive' %}">取消</a>{% endif %}
+                        <button type="submit" class="ws-btn ws-btn-primary">{% if editing %}保存{% else %}创建{% endif %}</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

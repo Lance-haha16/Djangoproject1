@@ -1,0 +1,79 @@
+{% extends "workstation/base.html" %}
+
+{% block workstation %}
+<h1 class="ws-title">智能家居</h1>
+<p class="ws-sub">增删改设备后，前台「家居」页会自动读取这里的数据。</p>
+
+<form class="ws-panel" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="save">
+    {% if editing %}<input type="hidden" name="id" value="{{ editing.id }}">{% endif %}
+    <div class="ws-form-row">
+        <label>名称</label>
+        <input type="text" name="name" value="{{ editing.name|default:'' }}" required>
+    </div>
+    <div class="ws-form-row">
+        <label>Slug（可空，自动生成）</label>
+        <input type="text" name="slug" value="{{ editing.slug|default:'' }}">
+    </div>
+    <div class="ws-form-row">
+        <label>卖点</label>
+        <input type="text" name="tagline" value="{{ editing.tagline|default:'' }}">
+    </div>
+    <div class="ws-form-row">
+        <label>图片 URL（如 /static/living/img/xxx.svg）</label>
+        <input type="text" name="image" value="{{ editing.image|default:'' }}">
+    </div>
+    <div class="ws-form-row">
+        <label>或上传图片</label>
+        <input type="file" name="image_file" accept="image/*">
+    </div>
+    <div class="ws-form-row">
+        <label>参数 JSON 或「标签:数值」每行一条</label>
+        <textarea name="specs">{{ specs_text }}</textarea>
+    </div>
+    <div class="ws-form-row">
+        <label>排序（越小越前）</label>
+        <input type="number" name="sort_order" value="{{ editing.sort_order|default:0 }}">
+    </div>
+    <label class="ws-check">
+        <input type="checkbox" name="is_published" {% if not editing or editing.is_published %}checked{% endif %}>
+        前台展示
+    </label>
+    <div class="ws-actions">
+        <button type="submit" class="ws-btn ws-btn-primary">{% if editing %}更新设备{% else %}添加设备{% endif %}</button>
+        {% if editing %}<a class="ws-btn" href="{% url 'workstation:living' %}">取消编辑</a>{% endif %}
+    </div>
+</form>
+
+<div class="ws-panel">
+    <table class="ws-table">
+        <thead>
+            <tr><th>设备</th><th>排序</th><th>状态</th><th></th></tr>
+        </thead>
+        <tbody>
+            {% for d in devices %}
+            <tr>
+                <td>
+                    <strong>{{ d.name }}</strong>
+                    <div class="ws-muted">{{ d.tagline }}</div>
+                </td>
+                <td>{{ d.sort_order }}</td>
+                <td>{% if d.is_published %}展示{% else %}隐藏{% endif %}</td>
+                <td>
+                    <a class="ws-btn" href="?edit={{ d.id }}">编辑</a>
+                    <form method="post" style="display:inline" onsubmit="return confirm('确定删除？');">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="delete">
+                        <input type="hidden" name="id" value="{{ d.id }}">
+                        <button type="submit" class="ws-btn ws-btn-danger">删除</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="ws-muted">还没有设备，先在上方添加，或运行 seed_workstation。</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

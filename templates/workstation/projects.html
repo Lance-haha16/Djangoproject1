@@ -1,0 +1,49 @@
+{% extends "workstation/base.html" %}
+
+{% block workstation %}
+<h1 class="ws-title">项目橱窗</h1>
+<p class="ws-sub">勾选要在「项目」页展示的仓库，可置顶与排序。先点同步，从 GitHub 拉取近期仓库写入配置表。</p>
+
+{% if projects_error %}
+<p class="ws-flash-item" style="background:rgba(239,68,68,.12);color:#b91c1c">{{ projects_error }}</p>
+{% endif %}
+
+<form class="ws-panel" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="sync">
+    <p class="ws-muted" style="margin:0 0 10px">当前 GitHub 近期仓库约 {{ remote_count }} 个。</p>
+    <button class="ws-btn ws-btn-primary" type="submit">从 GitHub 同步到橱窗</button>
+</form>
+
+{% for s in showcases %}
+<form class="ws-panel" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="save">
+    <input type="hidden" name="id" value="{{ s.id }}">
+    <div class="ws-form-row">
+        <label>仓库</label>
+        <input type="text" value="{{ s.repo_name }}" disabled>
+    </div>
+    <div class="ws-form-row">
+        <label>展示名</label>
+        <input type="text" name="display_name" value="{{ s.display_name }}">
+    </div>
+    <div class="ws-form-row">
+        <label>备注</label>
+        <input type="text" name="note" value="{{ s.note }}">
+    </div>
+    <div class="ws-form-row">
+        <label>排序</label>
+        <input type="number" name="sort_order" value="{{ s.sort_order }}">
+    </div>
+    <label class="ws-check"><input type="checkbox" name="is_visible" {% if s.is_visible %}checked{% endif %}> 前台展示</label>
+    <label class="ws-check" style="margin-left:16px"><input type="checkbox" name="is_pinned" {% if s.is_pinned %}checked{% endif %}> 置顶</label>
+    <div class="ws-actions">
+        <button class="ws-btn ws-btn-primary" type="submit">保存</button>
+        <button class="ws-btn ws-btn-danger" type="submit" name="action" value="delete" onclick="return confirm('移除该配置？');">移除</button>
+    </div>
+</form>
+{% empty %}
+<p class="ws-muted">还没有橱窗配置，先同步一次。</p>
+{% endfor %}
+{% endblock %}
