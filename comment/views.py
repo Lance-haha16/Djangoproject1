@@ -82,3 +82,17 @@ def post_comment(request, article_id, parent_comment_id=None):
 
     else:
         return HttpResponse("仅接受GET/POST请求。", status=405)
+
+
+@login_required(login_url='/userprofile/login/')
+def comment_delete(request, id):
+    if request.method != 'POST':
+        return HttpResponse("仅允许post请求")
+
+    comment = get_object_or_404(Comment, id=id)
+    if request.user != comment.user:
+        return HttpResponse("你只能删除自己的评论。")
+
+    article = comment.article
+    comment.delete()
+    return redirect(article)
