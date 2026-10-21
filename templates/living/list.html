@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - Fly's 博客{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'site/living.css' %}?v=3">
+
+<div class="living-page" id="living-app" data-devices="{% url 'workstation:api_living' %}">
+    <h1 class="living-title">{{ title }}</h1>
+    <p class="living-subtitle">智能家电一览 · 图片与关键参数</p>
+
+    <div class="living-search-wrap">
+        <input
+            type="search"
+            id="living-search"
+            class="living-search"
+            placeholder="搜索设备名称、卖点或参数"
+            autocomplete="off"
+        >
+    </div>
+
+    <div class="living-grid" id="living-grid"></div>
+    <p class="living-empty" id="living-empty" hidden>没有匹配的设备。</p>
+</div>
+
+<script src="{% static 'site/living.js' %}?v=1"></script>
+{% endblock %}

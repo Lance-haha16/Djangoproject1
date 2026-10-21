@@ -1,0 +1,50 @@
+[
+  {
+    "id": "air-purifier",
+    "name": "智能空气净化器 4 Pro",
+    "tagline": "全屋循环 · 安静除醛",
+    "image": "/static/living/img/air-purifier.svg",
+    "specs": [
+      { "label": "CADR", "value": "500 m³/h" },
+      { "label": "噪音", "value": "32–64 dB" },
+      { "label": "滤芯", "value": "H13 高效" },
+      { "label": "连接", "value": "Wi-Fi / App" }
+    ]
+  },
+  {
+    "id": "robot-vacuum",
+    "name": "扫拖机器人 S10",
+    "tagline": "激光导航 · 自动集尘",
+    "image": "/static/living/img/robot-vacuum.svg",
+    "specs": [
+      { "label": "吸力", "value": "4000 Pa" },
+      { "label": "续航", "value": "180 min" },
+      { "label": "水箱", "value": "200 ml" },
+      { "label": "导航", "value": "LDS 激光" }
+    ]
+  },
+  {
+    "id": "desk-lamp",
+    "name": "智能台灯 1S",
+    "tagline": "护眼读写 · 色温可调",
+    "image": "/static/living/img/desk-lamp.svg",
+    "specs": [
+      { "label": "色温", "value": "2700–6500 K" },
+      { "label": "照度", "value": "500 lx" },
+      { "label": "功率", "value": "9 W" },
+      { "label": "控制", "value": "旋钮 / App" }
+    ]
+  },
+  {
+    "id": "humidifier",
+    "name": "智能加湿器 2",
+    "tagline": "恒湿保湿 · 上加水",
+    "image": "/static/living/img/humidifier.svg",
+    "specs": [
+      { "label": "雾量", "value": "300 ml/h" },
+      { "label": "水箱", "value": "4 L" },
+      { "label": "适用", "value": "30 m²" },
+      { "label": "静音", "value": "≤38 dB" }
+    ]
+  }
+]
