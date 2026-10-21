@@ -35,9 +35,12 @@
 
 .custom-navbar {
     background: rgba(255, 255, 255, 0.4 ) !important; /* 半透明黑色，可根据需要调整 */
-    box-shadow: 0 4px 24px rgba(255, 255, 255, 0.08);
-    border-radius: 18px;
-    width: 75vw;
+    border: 1px solid rgba(40, 48, 64, 0.28);
+    box-shadow: 0 4px 18px rgba(30, 36, 48, 0.12);
+    border-radius: 0 0 18px 18px;
+    width: 100%;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
     position: fixed;
     top: 0px;
     left: 0;
@@ -50,17 +53,31 @@
 }
 
 .navbar-inner {
-    width: 100%;
+    width: min(1180px, 96vw);
+    margin: 0 auto;
+    padding-left: 1rem;
+    padding-right: 8px;
+    box-sizing: border-box;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    position: relative;
+    min-height: 76px;
+}
+
+.nav-backtop {
+  flex: 0 0 60px;
+  width: 60px;
+  height: 60px;
+  margin-left: 4px;
+  position: relative;
 }
 
 .toTop-arrow-navbar {
   width: 60px;
   height: 60px;
-  margin-top: 8px;
-    padding: 0;
+  margin: 0;
+  padding: 0;
   border: 0;
   border-radius: 50%;
   opacity: 0.85;
@@ -69,46 +86,124 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: 12px;
   transition: background 0.3s;
   box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-  position: static; /* 让它跟随头像排列 */
+  position: absolute;
+  right: 0;
+  top: 0;
 }
 .toTop-arrow-navbar:hover {
   background: #007bff;
 }
-#main-navbar {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.4s;
+
+.nav-links {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(860px, calc(100% - 280px));
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-evenly;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
-#main-navbar.navbar-visible {
-  opacity: 1;
-  pointer-events: auto;
+
+.nav-links .nav-link {
+  white-space: nowrap;
+  padding: 0.4rem 0.15rem;
+  color: #222;
+  font-size: 1.15rem;
+}
+
+.nav-side {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 0 0 0 auto;
+  padding: 0;
+  list-style: none;
+  transform: translateX(15px);
+}
+
+.nav-avatar,
+.nav-backtop {
+  transform: translateX(20px);
+}
+
+.nav-avatar .nav-link {
+  padding-right: 0;
+  padding-left: 0.25rem;
+}
+
+.nav-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25em;
+  margin-right: 0.35em;
+  vertical-align: -0.12em;
+  opacity: 0.85;
+}
+
+.nav-mark i {
+  font-size: 1.05em;
+  line-height: 1;
+}
+
+@media (max-width: 991px) {
+  .nav-links {
+    position: static;
+    transform: none;
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 }
 </style>
 
 
 {% notifications_unread as unread_count %}
 
-<nav class="navbar navbar-expand-lg navbar-light custom-navbar" id="main-navbar">
+<nav class="navbar navbar-expand-lg navbar-light custom-navbar">
   <div class="navbar-inner">
     <!-- 导航栏商标 -->
-    <a class="navbar-brand" href="{% url 'home' %}">Fly's 博客</a>
-    
-    <!-- 导航入口 -->
-    <div>
-      <ul class="navbar-nav">
-        <!-- 条目 -->
+    <a class="navbar-brand" href="{% url 'home' %}">Lance's Blog</a>
+
+    <ul class="nav-links">
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'article:article_list' %}">文章</a>
-          <a class="nav-link" href="{% url 'article:article_create' %}">写文章</a>
-
+          <a class="nav-link" href="{% url 'home' %}"><span class="nav-mark"><i class="fi fi-rr-home"></i></span>首页</a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'article:article_list' %}"><span class="nav-mark"><i class="fi fi-rr-document"></i></span>文章</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'message:message_list' %}"><span class="nav-mark"><i class="fi fi-rr-edit"></i></span>留言</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'section' 'projects' %}"><span class="nav-mark"><i class="fi fi-rr-edit-alt"></i></span>项目</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'section' 'archive' %}"><span class="nav-mark"><i class="fi fi-rs-calendar"></i></span>归档</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'section' 'music' %}"><span class="nav-mark"><i class="fi fi-rs-music-alt"></i></span>音乐</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'section' 'living' %}"><span class="nav-mark"><i class="fi fi-rr-bed"></i></span>家居</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'section' 'ideas' %}"><span class="nav-mark"><i class="fi fi-rr-bulb"></i></span>灵感</a>
+        </li>
+    </ul>
 
+    <ul class="nav-side">
+        {% include 'site_settings.html' %}
         {% if user.is_authenticated %}
         <!-- 如果用户已经登录，则显示用户名下拉框 -->
-        <li class="nav-item dropdown">
+        <li class="nav-item dropdown nav-avatar">
           <div class="dropdown-hover">
             <a class="nav-link" href="#" id="navbarDropdown" role="button">
               <img src="{% if user.profile.avatar %}{{ user.profile.avatar.url }}{% else %}{% static 'media/default-avatar.png' %}{% endif %}" 
@@ -120,6 +215,9 @@
             
             <div class="dropdown-menu">
               <span class="dropdown-item">{{ user.username }}</span>
+              {% if user.is_staff %}
+              <a class="dropdown-item" href="{% url 'workstation:dashboard' %}">站长工作台</a>
+              {% endif %}
               <a class="dropdown-item" href="{% url "notice:list" %}">通知
                 {% if unread_count %}
                 <span class="badge badge-danger">{{ unread_count }}</span>
@@ -132,14 +230,14 @@
         </li>
         {% else %}
         <!-- 如果用户未登录，则显示圆形头像 -->
-        <li class="nav-item">
+        <li class="nav-item nav-avatar">
           <a class="nav-link" href="{% url 'userprofile:login' %}">
             <img src="{% static  'media/default-avatar.png' %}" alt="登录" class="rounded-circle" style="width: 60px; height: 60px;">
           </a>
         </li>
         {% endif %}   
-        <li class="nav-item">
-          <button type="button" id="BackTop" class="toTop-arrow-navbar" style="margin-left: 12px; display: none;">
+        <li class="nav-item nav-backtop">
+          <button type="button" id="BackTop" class="toTop-arrow-navbar" style="display: none;">
             <span id="scrollPercent" style="color:rgb(255,255,255); font-weight:bold; font-size:1rem;"></span>
           </button>
         </li>
@@ -171,7 +269,6 @@
 
 
       </ul>
-    </div>
 
   </div>
 </nav>
@@ -197,21 +294,3 @@
     });
   });
   </script>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    var navbar = document.getElementById('main-navbar');
-    var hero = document.getElementById('hero');
-    function checkNavbar() {
-        var heroHeight = hero ? hero.offsetHeight : 0;
-        if(window.scrollY > heroHeight - 10) {
-            navbar.classList.add('navbar-visible');
-        } else {
-            navbar.classList.remove('navbar-visible');
-        }
-    }
-    checkNavbar();
-    window.addEventListener('scroll', checkNavbar);
-    window.addEventListener('resize', checkNavbar);
-});
-</script>
