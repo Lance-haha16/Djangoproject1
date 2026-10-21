@@ -1,179 +1,132 @@
 {% extends "base.html" %}
 {% load static %}
 
-<!-- 写入 base.html 中定义的 title -->
-{% block title %}
-    首页
-{% endblock title %}
+{% block title %}文章 - Fly's 博客{% endblock title %}
 
 {% block content %}
+<link rel="stylesheet" href="{% static 'site/article.css' %}?v=10">
 
+<div class="article-page">
+    <div class="article-hero-head">
+        <h1>文章</h1>
+        <p>写下想法，留下痕迹</p>
+        {% if user.is_authenticated %}
+        <a class="article-write-btn article-write-btn-top" href="{% url 'article:article_create' %}">
+            <i class="fas fa-pen"></i> 写文章
+        </a>
+        {% endif %}
+    </div>
 
-
-<!-- 定义放置文章标题的div容器 -->
-<div class="container">
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">
-                <a href="{% url 'article:article_list' %}?search={{ search }}">
-                    最新
-                </a>
-            </li>
-            <li class="breadcrumb-item">
-                <a href="{% url 'article:article_list' %}?order=total_views&search={{ search }}">                    最热
-                </a>
-            </li>
-        </ol>
-    </nav>
-
-    <div class="row">
-        <div class="col-auto mr-auto">
-            <form class="form-inline" >
-                <label class="sr-only">content</label>
-                <input type="text" 
-                    class="form-control mb-2 mr-sm-2" 
-                    name="search" 
-                    placeholder="搜索文章..." 
-                    required
-                >
-            </form>
+    <form class="article-search-wrap" method="get" action="{% url 'article:article_list' %}">
+        <input type="hidden" name="order" value="{{ order }}">
+        <input type="hidden" name="dir" value="{{ direction }}">
+        {% if tag %}<input type="hidden" name="tag" value="{{ tag }}">{% endif %}
+        <div class="article-search-box">
+            <i class="fas fa-search" aria-hidden="true"></i>
+            <input
+                type="search"
+                class="article-search-input"
+                name="search"
+                value="{{ search }}"
+                placeholder="搜索文章标题或内容"
+                autocomplete="off"
+            >
         </div>
+    </form>
+
+    {# 点一次进入该维度正序，再点同一项切换倒序 #}
+    <div class="article-sort" role="group" aria-label="排序">
+        <a
+            class="article-sort-item {% if order == 'created' %}is-active{% endif %}"
+            href="?order=created&dir={% if order == 'created' %}{% if direction == 'asc' %}desc{% else %}asc{% endif %}{% else %}asc{% endif %}{% if search %}&search={{ search }}{% endif %}{% if tag %}&tag={{ tag }}{% endif %}"
+            title="{% if order == 'created' %}{% if direction == 'asc' %}当前正序，再点切换倒序{% else %}当前倒序，再点切换正序{% endif %}{% else %}按时间正序{% endif %}"
+        >
+            {% if order == 'created' and direction == 'desc' %}
+            <i class="fas fa-sort-alpha-down"></i>
+            {% else %}
+            <i class="fas fa-sort-alpha-up"></i>
+            {% endif %}
+            <span>最新</span>
+        </a>
+        <a
+            class="article-sort-item {% if order == 'total_views' %}is-active{% endif %}"
+            href="?order=total_views&dir={% if order == 'total_views' %}{% if direction == 'asc' %}desc{% else %}asc{% endif %}{% else %}asc{% endif %}{% if search %}&search={{ search }}{% endif %}{% if tag %}&tag={{ tag }}{% endif %}"
+            title="{% if order == 'total_views' %}{% if direction == 'asc' %}当前正序，再点切换倒序{% else %}当前倒序，再点切换正序{% endif %}{% else %}按热度正序{% endif %}"
+        >
+            {% if order == 'total_views' and direction == 'desc' %}
+            <i class="fas fa-sort-amount-down"></i>
+            {% else %}
+            <i class="fas fa-sort-amount-up"></i>
+            {% endif %}
+            <span>最热</span>
+        </a>
     </div>
 
     {% if search %}
+    <p class="article-search-hint">
         {% if articles %}
-            <h4><span style="color: red">"{{ search }}"</span>的搜索结果如下：</h4>
-            <hr>        
+            关于 <em>“{{ search }}”</em> 的搜索结果
         {% else %}
-            <h4>暂无<span style="color: red">"{{ search }}"</span>有关的文章。</h4>
-            <hr>
+            暂无与 <em>“{{ search }}”</em> 相关的文章
         {% endif %}
+    </p>
     {% endif %}
 
-
-    <div class="row mt-2">
-
-        
-            {% for article in articles %}
-                <!-- 文章内容 -->
+    {% if article_columns %}
+    <div class="article-grid">
+        {% for column in article_columns %}
+        <div class="article-col">
+            {% for article in column %}
+            <a class="article-card article-glass" href="{% url 'article:article_detail' article.id %}">
                 {% if article.avatar %}
-                <div class="col-3">
-                    <img src="{{ article.avatar.url }}" 
-                         alt="avatar" 
-                         style="max-width:100%; border-radius: 20px"
-                    >
+                <div class="article-card-cover">
+                    <img src="{{ article.avatar.url }}" alt="">
                 </div>
-            {% endif %}
-                <div class="col-9">
-                    <!-- 栏目 -->
-                    {% if article.column %}
-                        <button type="button" 
-                            class="btn btn-sm mb-2
-                                {% if article.column.title == 'Django' %}
-                                    btn-success
-                                {% elif article.column.title == 'Java' %}
-                                    btn-danger
-                                {% elif article.column.title == 'HTML' %}
-                                    btn-warning
-                                {% endif %}
-                            "
-                        >
-                            {{ article.column }}
-                        </button>
-                    {% endif %}
-
-                    <!-- 标签 -->
-                        <span>
-                            {% for tag in article.tags.all %}
-                            <a href="{% url 'article:article_list' %}?tag={{ tag }}"
-                            class="badge badge-secondary" 
-                         >
-                                    {{ tag }}
-                                </a>
-                            {% endfor %}
-                        </span>
-
-
-                    <!-- 标题 -->
-                    <h4>
-                        <b>
-                            <a href="{% url 'article:article_detail' article.id %}"
-                               style="color: black;" 
-                            >
-                                {{ article.title }}
-                            </a>
-                        </b>
-                    </h4>
-                    <!-- 摘要 -->
-                    <div>
-                        <p style="color: gray;">
-                            {{ article.body|slice:'100' }}...
-                        </p>
+                {% endif %}
+                <div class="article-card-body">
+                    {% if article.column or article.tags.all %}
+                    <div class="article-card-tags">
+                        {% if article.column %}
+                        <span class="article-chip is-column">{{ article.column }}</span>
+                        {% endif %}
+                        {% for tag in article.tags.all %}
+                        <span class="article-chip is-tag"># {{ tag }}</span>
+                        {% endfor %}
                     </div>
-                    <!-- 注脚 -->
-                    <p>
-                        <p>
-                        <!-- 附加信息，增加了图标 -->
-                        <span>
-                            <i class="fas fa-eye" style="color: lightskyblue;"></i>
-                            {{ article.total_views }}&nbsp;&nbsp;&nbsp;
-                        </span>
-                        <span>
-                            <i class="fas fa-comments" style="color: yellowgreen;"></i>
-                            <!-- 修改为评论的计数 -->
-                            {{ article.comments.count }}&nbsp;&nbsp;&nbsp;
-                        </span>
-                        <span>
-                            <i class="fas fa-clock" style="color: pink;"></i>
-                            {{ article.created|date:'Y-m-d' }}
-                        </span>
-                    </p>
-                       
-                    
-                    <hr style ="width:100%;"/>
+                    {% endif %}
+                    <h2 class="article-card-title">{{ article.title }}</h2>
+                    {% with excerpt=article.body|striptags|truncatechars:140 %}
+                    {% if excerpt %}
+                    <p class="article-card-excerpt">{{ excerpt }}</p>
+                    {% endif %}
+                    {% endwith %}
+                    <div class="article-card-meta">
+                        <span><i class="fi fi-rs-eye"></i> {{ article.total_views }}</span>
+                        <span><i class="fi fi-rr-comment-alt-middle"></i> {{ article.comments.count }}</span>
+                        <span><i class="fi fi-rr-clock"></i> {{ article.created|date:"Y-m-d" }}</span>
+                    </div>
                 </div>
+            </a>
             {% endfor %}
         </div>
-</div>
-
-
-
-
-<div class="pagination row">
-    <div class="m-auto">
-        <span class="step-links">
-            <!-- 如果不是第一页，则显示上翻按钮 -->
-            {% if articles.has_previous %}
-            <a href="?page=1{% if order %}&order={{ order }}{% endif %}{% if search %}&search={{ search }}{% endif %}{% if column %}&column={{ column }}{% endif %}{% if tag %}&tag={{ tag }}{% endif %}" 
-            class="btn btn-success">&laquo; 1
-                </a>
-                <span>...</span>
-                <a href="?page={{ articles.previous_page_number }}{% if order %}&order={{ order }}{% endif %}{% if search %}&search={{ search }}{% endif %}{% if column %}&column={{ column }}{% endif %}{% if tag %}&tag={{ tag }}{% endif %}"    class="btn btn-secondary"
-                >
-                    {{ articles.previous_page_number }}
-                </a>
-            {% endif %}
-
-            <!-- 当前页面 -->
-            <span class="current btn btn-danger btn-lg">
-                {{ articles.number }}
-            </span>
-
-            <!-- 如果不是最末页，则显示下翻按钮 -->
-            {% if articles.has_next %}
-            <a href="?page={{ articles.next_page_number }}{% if order %}&order={{ order }}{% endif %}{% if search %}&search={{ search }}{% endif %}{% if column %}&column={{ column }}{% endif %}{% if tag %}&tag={{ tag }}{% endif %}"   class="btn btn-secondary"
-                >
-                    {{ articles.next_page_number }}
-                </a>
-                <span>...</span>
-                <a href="?page={{ articles.paginator.num_pages }}{% if order %}&order={{ order }}{% endif %}{% if search %}&search={{ search }}{% endif %}{% if column %}&column={{ column }}{% endif %}{% if tag %}&tag={{ tag }}{% endif %}"   class="btn btn-success"
-                >
-                    {{ articles.paginator.num_pages }} &raquo;
-                </a>
-            {% endif %}
-        </span>
+        {% endfor %}
     </div>
+
+    {% if articles.has_other_pages %}
+    <div class="article-pager">
+        {% if articles.has_previous %}
+        <a href="?page=1&order={{ order }}&dir={{ direction }}{% if search %}&search={{ search }}{% endif %}{% if tag %}&tag={{ tag }}{% endif %}">&laquo;</a>
+        <a href="?page={{ articles.previous_page_number }}&order={{ order }}&dir={{ direction }}{% if search %}&search={{ search }}{% endif %}{% if tag %}&tag={{ tag }}{% endif %}">{{ articles.previous_page_number }}</a>
+        {% endif %}
+        <span class="is-current">{{ articles.number }}</span>
+        {% if articles.has_next %}
+        <a href="?page={{ articles.next_page_number }}&order={{ order }}&dir={{ direction }}{% if search %}&search={{ search }}{% endif %}{% if tag %}&tag={{ tag }}{% endif %}">{{ articles.next_page_number }}</a>
+        <a href="?page={{ articles.paginator.num_pages }}&order={{ order }}&dir={{ direction }}{% if search %}&search={{ search }}{% endif %}{% if tag %}&tag={{ tag }}{% endif %}">&raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="article-empty article-glass">还没有文章。{% if user.is_authenticated %}去写第一篇吧。{% endif %}</div>
+    {% endif %}
 </div>
-
-
 {% endblock content %}

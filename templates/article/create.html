@@ -1,65 +1,76 @@
-{% extends "base.html" %} {% load static %}
-<!-- 写入 base.html 中定义的 title -->
-{% block title %} 写文章 {% endblock title %}
-<!-- 写入 base.html 中定义的 content -->
-{% block content %}
-<!-- 写文章表单 -->
-<div class="container">
-    <div class="row">
-        <div class="col-12">
-            <br>
-            <!-- 提交文章的表单 -->
-            <form method="post" action=".">
-                {% csrf_token %}
-                <!-- 文章标题 -->
-                <div class="form-group">
-                    <!-- 标签 -->
-                    <label for="title">文章标题</label>
-                    <!-- 文本框 -->
-                    <input type="text" 
-                           class="form-control" 
-                           id="title" 
-                           name="title" >
-                        </div>
+{% extends "base.html" %}
+{% load static %}
 
-                <!-- 文章标题图 -->
-                    <div class="form-group">
-                        <label for="avatar">标题图</label>
-                        <input type="file" class="form-control-file" name="avatar" id="avatar">
+{% block title %}写文章 - Fly's 博客{% endblock title %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'site/article.css' %}?v=9">
+
+<div class="article-page article-page-narrow">
+    <div class="article-editor article-glass">
+        <div class="article-editor-head">
+            <h1>写文章</h1>
+            <p>沉浸式写下这一篇。支持 Markdown。</p>
+        </div>
+
+        <form method="post" action="." enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="article-field">
+                <label for="title">标题</label>
+                <input type="text" id="title" name="title" placeholder="给你的文章起个名字" required>
+            </div>
+
+            <div class="article-field-row">
+                <div class="article-field">
+                    <label for="avatar">封面图</label>
+                    <input type="file" id="avatar" name="avatar" accept="image/*">
+                    <div class="article-cover-preview" id="avatar-preview" hidden>
+                        <img alt="封面预览">
                     </div>
-                
-                <!-- 文章栏目 -->
-                <div class="form-group">
+                    <p class="article-field-hint">可选，建议横图（支持 jpg/png/webp）</p>
+                </div>
+                <div class="article-field">
                     <label for="column">栏目</label>
-                    <select class="form-control" 
-                            id="column" 
-                            name="column"
-                    >
-                            <option value="none">请选择栏目..</option>
+                    <select id="column" name="column">
+                        <option value="none">不选栏目</option>
                         {% for column in columns %}
-                            <option value="{{ column.id }}">{{ column }}</option>
+                        <option value="{{ column.id }}">{{ column }}</option>
                         {% endfor %}
                     </select>
                 </div>
-                <div class="form-group">
-                    <label for="tags">标签</label>
-                    <input type="text" 
-                           class="form-control col-3" 
-                           id="tags" 
-                           name="tags"
-                    >
-                </div>
-            
-                <!-- 文章正文 -->
-                <div class="form-group">
-                    <label for="body">文章正文</label>
-                    <!-- 文本区域 -->
-                    <textarea type="text" class="form-control" id="body" name="body" rows="12"></textarea>
-                </div>
-                <!-- 提交按钮 -->
-                <button type="submit" class="btn btn-primary">完成</button>
-            </form>
-        </div>
+            </div>
+
+            <div class="article-field">
+                <label for="tags">标签</label>
+                <input type="text" id="tags" name="tags" placeholder="用逗号分隔，例如：Django,前端">
+                <p class="article-field-hint">多个标签用英文逗号分隔</p>
+            </div>
+
+            <div class="article-field">
+                <label for="body">正文</label>
+                <textarea id="body" name="body" rows="18" placeholder="开始写作…" required></textarea>
+            </div>
+
+            <div class="article-editor-actions">
+                <button type="submit" class="article-btn-primary">发布</button>
+                <a class="article-btn-ghost" href="{% url 'article:article_list' %}">取消</a>
+            </div>
+        </form>
     </div>
 </div>
+<script>
+(function () {
+  var input = document.getElementById('avatar');
+  var box = document.getElementById('avatar-preview');
+  if (!input || !box) return;
+  var img = box.querySelector('img');
+  input.addEventListener('change', function () {
+    var file = input.files && input.files[0];
+    if (!file) { box.hidden = true; return; }
+    img.src = URL.createObjectURL(file);
+    box.hidden = false;
+  });
+})();
+</script>
 {% endblock content %}

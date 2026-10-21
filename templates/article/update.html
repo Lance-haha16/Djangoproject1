@@ -1,59 +1,82 @@
-{% extends "base.html" %} {% load static %}
-{% block title %} 更新文章 {% endblock title %}
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}编辑文章 - Fly's 博客{% endblock title %}
+
 {% block content %}
-<div class="container">
-    <div class="row">
-        <div class="col-12">
-            <br>
-            <form method="post" action=".">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label for="title">文章标题</label>
-                    <!-- 在 value 属性中指定文本框的初始值为旧的内容，即 article 对象中的 title 字段 -->
-                    <input type="text" class="form-control" id="title" name="title" value="{{ article.title }}">
+<link rel="stylesheet" href="{% static 'site/article.css' %}?v=9">
+
+<div class="article-page article-page-narrow">
+    <div class="article-editor article-glass">
+        <div class="article-editor-head">
+            <h1>编辑文章</h1>
+            <p>修改后保存即可更新线上内容。</p>
+        </div>
+
+        <form method="post" action="." enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="article-field">
+                <label for="title">标题</label>
+                <input type="text" id="title" name="title" value="{{ article.title }}" required>
+            </div>
+
+            <div class="article-field-row">
+                <div class="article-field">
+                    <label for="avatar">封面图</label>
+                    <input type="file" id="avatar" name="avatar" accept="image/*">
+                    <div class="article-cover-preview" id="avatar-preview" {% if not article.avatar %}hidden{% endif %}>
+                        <img src="{% if article.avatar %}{{ article.avatar.url }}{% endif %}" alt="封面预览">
+                    </div>
+                    {% if article.avatar %}
+                    <p class="article-field-hint">当前已有封面，重新上传将替换</p>
+                    {% else %}
+                    <p class="article-field-hint">可选，建议横图（支持 jpg/png/webp）</p>
+                    {% endif %}
                 </div>
-                <div class="form-group">
-                    <label for="avatar">标题图</label>
-                    <input type="file" class="form-control-file" name="avatar" id="avatar">
-                 </div>
-                 
-
-
-
-                 <div class="form-group">
+                <div class="article-field">
                     <label for="column">栏目</label>
-                    <select class="form-control" 
-                            id="column" 
-                            name="column"
-                    >
-                            <option value="none">请选择栏目..</option>
+                    <select id="column" name="column">
+                        <option value="none">不选栏目</option>
                         {% for column in columns %}
-                            <option value="{{ column.id }}"
-                                {% if column.id == article.column.id %}
-                                    selected
-                                {% endif %}
-                            >
-                                {{ column }}
-                            </option>
+                        <option value="{{ column.id }}" {% if article.column_id == column.id %}selected{% endif %}>
+                            {{ column }}
+                        </option>
                         {% endfor %}
                     </select>
                 </div>
-                
-                 <!-- 文章标签-->
-                 <div class="form-group">
-                      <label for="tags">标签</label>
-                      <input type="text" class="form-control col-3" id="tags" name="tags"
-                         value="{{ tags }}">
-                 </div>
+            </div>
 
-                <div class="form-group">
-                    <label for="body">文章正文</label>
-                    <!-- 文本域不需要 value 属性，直接在标签体中嵌入数据即可 -->
-                    <textarea type="text" class="form-control" id="body" name="body" rows="12">{{ article.body }}</textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">完成</button>
-            </form>
-        </div>
+            <div class="article-field">
+                <label for="tags">标签</label>
+                <input type="text" id="tags" name="tags" value="{{ tags }}" placeholder="用逗号分隔">
+                <p class="article-field-hint">多个标签用英文逗号分隔</p>
+            </div>
+
+            <div class="article-field">
+                <label for="body">正文</label>
+                <textarea id="body" name="body" rows="18" required>{{ article.body }}</textarea>
+            </div>
+
+            <div class="article-editor-actions">
+                <button type="submit" class="article-btn-primary">保存修改</button>
+                <a class="article-btn-ghost" href="{% url 'article:article_detail' article.id %}">返回文章</a>
+            </div>
+        </form>
     </div>
 </div>
+<script>
+(function () {
+  var input = document.getElementById('avatar');
+  var box = document.getElementById('avatar-preview');
+  if (!input || !box) return;
+  var img = box.querySelector('img');
+  input.addEventListener('change', function () {
+    var file = input.files && input.files[0];
+    if (!file) return;
+    img.src = URL.createObjectURL(file);
+    box.hidden = false;
+  });
+})();
+</script>
 {% endblock content %}
