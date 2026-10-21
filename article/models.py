@@ -37,17 +37,24 @@ class ArticlePost(models.Model):
         ordering=('-created',)
 
     def save(self, *args, **kwargs):
-        # 调用原有的 save() 的功能
         article = super(ArticlePost, self).save(*args, **kwargs)
 
-        # 固定宽度缩放图片大小
+        # 固定宽度缩放封面（Pillow 10+ 已移除 ANTIALIAS）
         if self.avatar and not kwargs.get('update_fields'):
-            image = Image.open(self.avatar)
-            (x, y) = image.size
-            new_x = 400
-            new_y = int(new_x * (y / x))
-            resized_image = image.resize((new_x, new_y), Image.ANTIALIAS)
-            resized_image.save(self.avatar.path)
+            try:
+                image = Image.open(self.avatar)
+                if image.mode not in ('RGB', 'L'):
+                    image = image.convert('RGB')
+                x, y = image.size
+                if x > 0 and y > 0:
+                    new_x = 800
+                    new_y = max(1, int(new_x * (y / float(x))))
+                    resample = getattr(getattr(Image, 'Resampling', Image), 'LANCZOS', Image.BICUBIC)
+                    resized_image = image.resize((new_x, new_y), resample)
+                    resized_image.save(self.avatar.path, quality=88)
+            except Exception:
+                # 缩放失败时保留原图，不阻断保存
+                pass
 
         return article
 

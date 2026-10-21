@@ -1,5 +1,5 @@
 from django.shortcuts import render ,redirect
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from .models import ArticlePost
 from .forms import ArticlePostForm
 from django.contrib.auth.models import User
@@ -14,16 +14,86 @@ from comment.forms import CommentForm
 
 # Create your views here.
 def home(request):
-    return render(request, 'home.html')
+    return render(request, 'home/index.html')
+
+
+def music_float(request):
+    """Standalone mini-player window (keeps playing while main site navigates)."""
+    return render(request, 'music/float.html')
+
+SECTIONS = {
+    'guestbook': '留言',
+    'projects': '项目',
+    'archive': '归档',
+    'music': '音乐',
+    'living': '家居',
+    'ideas': '灵感',
+}
+
+def section_page(request, slug):
+    title = SECTIONS.get(slug)
+    if title is None:
+        raise Http404
+    if slug == 'projects':
+        from .github_projects import fetch_recent_projects
+        from workstation.models import ProjectShowcase
+        payload = fetch_recent_projects()
+        remote = payload.get('projects', [])
+        showcases = list(ProjectShowcase.objects.filter(is_visible=True))
+        if showcases:
+            by_name = {p.get('name'): p for p in remote}
+            projects = []
+            for s in showcases:
+                match = by_name.get(s.repo_name)
+                if not match:
+                    continue
+                item = dict(match)
+                if s.display_name:
+                    item['name'] = s.display_name
+                projects.append(item)
+        else:
+            projects = remote
+        return render(request, 'projects/list.html', {
+            'title': title,
+            'projects': projects,
+            'projects_error': payload.get('error', ''),
+            'github_user': payload.get('user', 'Lance-haha16'),
+        })
+    if slug == 'music':
+        return render(request, 'music/list.html', {'title': title})
+    if slug == 'living':
+        return render(request, 'living/list.html', {'title': title})
+    if slug == 'ideas':
+        from workstation.models import IdeaNote
+        notes = IdeaNote.objects.filter(is_published=True)
+        return render(request, 'ideas/list.html', {
+            'title': title,
+            'notes': notes,
+        })
+    if slug == 'archive':
+        from .archive import build_archive_timeline
+        archive = build_archive_timeline()
+        return render(request, 'archive/list.html', {
+            'title': title,
+            'archive_events': archive['events'],
+            'archive_article_count': archive['article_count'],
+            'archive_total': archive['total'],
+        })
+    return render(request, 'section.html', {'title': title})
 
 def article_list(request):
 
     search = request.GET.get('search')
-    order = request.GET.get('order')
+    order = request.GET.get('order') or 'created'
+    direction = request.GET.get('dir') or 'desc'
     column = request.GET.get('column')
     tag = request.GET.get('tag')
     article_list = ArticlePost.objects.all()
 
+    if order not in ('created', 'total_views'):
+        order = 'created'
+    if direction not in ('asc', 'desc'):
+        direction = 'desc'
 
     if search:
         article_list = article_list.filter(
@@ -41,16 +111,38 @@ def article_list(request):
     if tag and tag != 'None':
         article_list = article_list.filter(tags__name__in=[tag])
 
-    # 查询集排序
-    if order == 'total_views':
-        article_list = article_list.order_by('-total_views')  
-    paginator = Paginator(article_list, 10)
+    # 正序 asc / 倒序 desc；同按钮再点一次切换方向
+    sort_field = 'total_views' if order == 'total_views' else 'created'
+    sort_key = sort_field if direction == 'asc' else f'-{sort_field}'
+    article_list = article_list.order_by(sort_key)
+
+    article_list = article_list.select_related('column', 'author').prefetch_related('tags')
+    paginator = Paginator(article_list, 12)
     page = request.GET.get('page')
     articles = paginator.get_page(page)
-    
-    # 增加 search 到 context
-    context = { 'articles': articles, 'order': order, 'search': search ,'tag':tag}
-    
+
+    # 按文章数平分到各列，列间不对齐；列内间距由 CSS 固定
+    items = list(articles.object_list)
+    col_count = 3
+    article_columns = [[] for _ in range(col_count)]
+    if items:
+        base, rem = divmod(len(items), col_count)
+        start = 0
+        for i in range(col_count):
+            size = base + (1 if i < rem else 0)
+            article_columns[i] = items[start:start + size]
+            start += size
+        # 去掉末尾空列（文章很少时）
+        article_columns = [col for col in article_columns if col]
+
+    context = {
+        'articles': articles,
+        'article_columns': article_columns,
+        'order': order,
+        'direction': direction,
+        'search': search,
+        'tag': tag,
+    }
     return render(request, 'article/list.html', context)
           
     
@@ -94,17 +186,18 @@ def article_create(request):
             # 此时请重新创建用户，并传入此用户的id
             new_article.author = User.objects.get(id=request.user.id)
             
-            if request.POST['column'] != 'none':
+            if request.POST.get('column') and request.POST['column'] != 'none':
                 new_article.column = ArticleColumn.objects.get(id=request.POST['column'])
-            # 将新文章保存到数据库中
             new_article.save()
             article_post_form.save_m2m()
 
-            # 完成后返回到文章列表
+            raw_tags = (request.POST.get('tags') or '').strip()
+            if raw_tags:
+                tag_names = [t.strip() for t in raw_tags.split(',') if t.strip()]
+                new_article.tags.set(tag_names, clear=True)
+
             return redirect("article:article_list")
-        # 如果数据不合法，返回错误信息
-        else:
-            return HttpResponse("表单内容有误，请重新填写。")
+        return HttpResponse("表单内容有误，请重新填写。")
     # 如果用户请求获取数据
     else:
         # 创建表单类实例
@@ -143,29 +236,26 @@ def article_update(request, id):
     # 判断用户是否为 POST 提交表单数据
 
     if request.method == "POST":
-        # 将提交的数据赋值到表单实例中
-        article_post_form = ArticlePostForm(data=request.POST)
-        # 判断提交的数据是否满足模型的要求
+        # 必须带上 FILES，否则封面上传无法进入表单
+        article_post_form = ArticlePostForm(request.POST, request.FILES, instance=article)
         if article_post_form.is_valid():
-            # 保存新写入的 title、body 数据并保存
-            article.title = request.POST['title']
-            article.body = request.POST['body']
-            if request.POST['column'] != 'none':
-                article.column = ArticleColumn.objects.get(id=request.POST['column'])
+            updated = article_post_form.save(commit=False)
+            if request.POST.get('column') and request.POST['column'] != 'none':
+                updated.column = ArticleColumn.objects.get(id=request.POST['column'])
             else:
-                article.column = None
-            if request.FILES.get('avatar'):
-                article.avatar = request.FILES.get('avatar')
+                updated.column = None
+            updated.save()
+            article_post_form.save_m2m()
 
-            article.tags.set(*request.POST.get('tags').split(','), clear=True)
-            
-            article.save()
-            # 完成后返回到修改后的文章中。需传入文章的 id 值
+            raw_tags = (request.POST.get('tags') or '').strip()
+            if raw_tags:
+                tag_names = [t.strip() for t in raw_tags.split(',') if t.strip()]
+                updated.tags.set(tag_names, clear=True)
+            else:
+                updated.tags.clear()
+
             return redirect("article:article_detail", id=id)
-        # 如果数据不合法，返回错误信息
-        else:
-            
-            return HttpResponse("表单内容有误，请重新填写。")
+        return HttpResponse("表单内容有误，请重新填写。")
 
     # 如果用户 GET 请求获取数据
     else:
