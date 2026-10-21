@@ -1,0 +1,82 @@
+{% load static %}
+
+<!DOCTYPE html>
+<!-- 网站主语言 -->
+<html lang="zh-cn">
+
+<head>
+    <!-- 网站采用的字符编码 -->
+    <meta charset="utf-8">
+    <!-- 预留网站标题的位置 -->
+    <title>{% block title %}{% endblock %}</title>
+    <!-- 引入bootstrap的css文件 -->
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'md_css/monokai.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-straight/css/uicons-regular-straight.css">
+    <link rel="stylesheet" href="{% static 'site/appearance.css' %}?v=4">
+    <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.12/dist/turbo.es2017-umd.js" defer></script>
+    <style>
+      .turbo-progress-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 2px;
+        background: #ec4141;
+        z-index: 13000;
+        transition: width 300ms ease-out, opacity 150ms linear;
+      }
+    </style>
+</head>
+
+<body class="site-body">
+    <div id="site-wallpaper" data-turbo-permanent hidden></div>
+    <canvas id="site-season" data-turbo-permanent hidden></canvas>
+    <!-- 引入导航栏 -->
+    {% include 'home/header.html' %}
+    <!-- 预留具体页面的位置 -->
+    <main class="page-main page-main-home">
+    {% block content %}{% endblock content %}
+    </main>
+    <!-- 引入注脚 -->
+    {% include 'footer.html' %}
+    <!-- bootstrap.js 依赖 jquery.js 和popper.js，因此在这里引入 -->
+    <script src="{% static 'jquery/jquery-3.3.1.js' %}"></script>
+    {% include 'back_to_top_func.html' %}
+    <!-- 
+        popper.js 采用 cdn 远程引入，意思是你不需要把它下载到本地。
+        在实际的开发中推荐静态文件尽量都使用 cdn 的形式。 
+        教程采用本地引入是为了让读者了解静态文件本地部署的流程。
+    -->
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1-lts/dist/umd/popper.min.js"></script>
+   
+    <!-- 引入bootstrap的js文件 -->
+    <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'layer/layer.js' %}"></script>
+    <script>
+      window.SITE_APPEARANCE = {
+        background: "{{ site_appearance.background|escapejs }}",
+        blur: {{ site_appearance.blur|default:0 }},
+        season: {% if site_appearance.season %}true{% else %}false{% endif %}
+      };
+    </script>
+    <script src="{% static 'site/appearance.js' %}?v=4"></script>
+    <link rel="stylesheet" href="{% static 'site/cybercat.css' %}?v=1">
+    <script src="{% static 'site/cybercat.js' %}?v=2"></script>
+    {% include "includes/mini_player.html" %}
+    {% block script %}{% endblock script %}
+    <script>
+      document.addEventListener("turbo:before-visit", function (e) {
+        try {
+          var path = new URL(e.detail.url, window.location.origin).pathname || "";
+          if (path.indexOf("/admin/") === 0 || path.indexOf("/accounts/") === 0) {
+            e.preventDefault();
+            window.location.href = e.detail.url;
+          }
+        } catch (err) {}
+      });
+    </script>
+</body>
+
+</html>
