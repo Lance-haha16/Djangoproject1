@@ -1,0 +1,81 @@
+{% load static %}
+<li class="nav-item site-settings" id="site-settings">
+  <button type="button" class="site-settings-btn" id="site-settings-toggle" aria-expanded="false" aria-controls="site-settings-panel" title="设置">
+    <i class="fi fi-rr-settings" aria-hidden="true"></i>
+  </button>
+  <div class="site-settings-panel" id="site-settings-panel" hidden>
+    <p class="site-settings-title">设置</p>
+
+    <p class="site-settings-label">背景图片</p>
+    <button type="button" class="site-bg-choice is-text" id="site-bg-default" data-src="">默认</button>
+    <div class="site-bg-pager" id="site-bg-presets-pager">
+      <div class="site-bg-grid" id="site-bg-presets">
+        <button type="button" class="site-bg-choice" data-src="{% static 'wallpaper/asuka.jpg' %}" title="明日香">
+          <img src="{% static 'wallpaper/asuka.jpg' %}" alt="明日香" loading="lazy">
+        </button>
+        <button type="button" class="site-bg-choice" data-src="{% static 'wallpaper/mitsuha.jpg' %}" title="三叶">
+          <img src="{% static 'wallpaper/mitsuha.jpg' %}" alt="三叶" loading="lazy">
+        </button>
+        <button type="button" class="site-bg-choice" data-src="{% static 'wallpaper/rikka.jpg' %}" title="六花">
+          <img src="{% static 'wallpaper/rikka.jpg' %}" alt="六花" loading="lazy">
+        </button>
+        <button type="button" class="site-bg-choice" data-src="{% static 'wallpaper/mai.jpg' %}" title="麻衣学姐">
+          <img src="{% static 'wallpaper/mai.jpg' %}" alt="麻衣学姐" loading="lazy">
+        </button>
+        <button type="button" class="site-bg-choice is-page-hidden" data-src="{% static 'wallpaper/yukino.jpg' %}" title="雪乃">
+          <img src="{% static 'wallpaper/yukino.jpg' %}" alt="雪乃" loading="lazy">
+        </button>
+        <button type="button" class="site-bg-choice is-page-hidden" data-src="{% static 'wallpaper/yukino2.jpg' %}" title="雪乃 2">
+          <img src="{% static 'wallpaper/yukino2.jpg' %}" alt="雪乃 2" loading="lazy">
+        </button>
+        <button type="button" class="site-bg-choice is-page-hidden" data-src="{% static 'wallpaper/yukino3.jpg' %}" title="雪乃 3">
+          <img src="{% static 'wallpaper/yukino3.jpg' %}" alt="雪乃 3" loading="lazy">
+        </button>
+      </div>
+      <div class="site-bg-page-controls">
+        <button type="button" class="site-bg-page-btn" data-dir="-1" aria-label="上一页" disabled>&lt;</button>
+        <span class="site-bg-page-label">1 / 2</span>
+        <button type="button" class="site-bg-page-btn" data-dir="1" aria-label="下一页">&gt;</button>
+      </div>
+    </div>
+
+    <!--
+    <div class="site-upload-row">
+      <label class="site-upload-btn">
+        上传背景
+        <input type="file" id="site-bg-upload" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
+      </label>
+      <span class="site-settings-status" id="site-settings-status"></span>
+    </div>
+    <p class="site-settings-hint">自定义壁纸会保存在本机浏览器里，限制 8MB 以内，避免占太多内存、拖慢页面。</p>
+
+    <p class="site-settings-label">已上传</p>
+    <div class="site-bg-pager" id="site-bg-uploads-pager">
+      <div class="site-bg-grid" id="site-bg-uploads"></div>
+      <div class="site-bg-page-controls" hidden>
+        <button type="button" class="site-bg-page-btn" data-dir="-1" aria-label="上一页">&lt;</button>
+        <span class="site-bg-page-label">1 / 1</span>
+        <button type="button" class="site-bg-page-btn" data-dir="1" aria-label="下一页">&gt;</button>
+      </div>
+    </div>
+    <p class="site-settings-empty" id="site-bg-empty">还没有上传过背景</p>
+    -->
+
+    <div class="site-blur">
+      <div class="site-blur-head">
+        <strong>背景模糊</strong>
+        <span id="site-blur-value">0px</span>
+      </div>
+      <input type="range" id="site-blur-range" min="0" max="20" step="1" value="0" aria-label="背景模糊，0到20像素">
+    </div>
+
+    <label class="site-switch">
+      <span class="site-switch-text">
+        <strong>季节特效</strong>
+        <small id="site-season-hint">按当前季节显示不同效果</small>
+      </span>
+      <input type="checkbox" id="site-season-toggle">
+      <span class="site-switch-track"></span>
+    </label>
+  </div>
+</li>
