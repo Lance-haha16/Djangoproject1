@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - Fly's 博客{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'site/ideas.css' %}?v=1">
+
+<div class="ideas-page">
+    <h1 class="ideas-title">{{ title }}</h1>
+    <p class="ideas-subtitle">随手记下的碎片想法</p>
+
+    <div class="ideas-list">
+        {% for note in notes %}
+        <article class="ideas-card">
+            <h2 class="ideas-card-title">{{ note.title }}</h2>
+            <p class="ideas-card-date">{{ note.created|date:"Y.n.j H:i" }}</p>
+            <div class="ideas-card-body">{{ note.body|linebreaksbr }}</div>
+        </article>
+        {% empty %}
+        <p class="ideas-empty">还没有灵感，站长可在工作台里写下第一笔。</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
