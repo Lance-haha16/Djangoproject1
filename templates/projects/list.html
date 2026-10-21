@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - Fly's 博客{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'site/projects.css' %}?v=3">
+
+<div class="projects-page">
+    <div class="projects-hero">
+        <h1 class="projects-title">{{ title }}</h1>
+        <p class="projects-subtitle">
+            来自 GitHub @{{ github_user }} · 最近 3 个月有更新，或新 fork 的仓库
+        </p>
+    </div>
+
+    <div class="projects-search-wrap">
+        <div class="projects-search-box">
+            <i class="fas fa-search" aria-hidden="true"></i>
+            <input
+                type="search"
+                id="projects-search"
+                class="projects-search"
+                placeholder="搜索项目名称、描述或技术栈"
+                autocomplete="off"
+            >
+        </div>
+    </div>
+
+    {% if projects_error %}
+    <div class="projects-error">{{ projects_error }}</div>
+    {% elif projects %}
+    <div class="projects-grid" id="projects-grid">
+        {% for project in projects %}
+        <a
+            class="project-card"
+            href="{{ project.url }}"
+            target="_blank"
+            rel="noopener noreferrer"
+            data-search="{{ project.search_blob }}"
+        >
+            <h2 class="project-card-name">{{ project.name }}</h2>
+            <p class="project-card-desc">{{ project.description }}</p>
+            <div class="project-card-tech">
+                {% for tech in project.tech_stack %}
+                <span class="project-tech-tag">{{ tech }}</span>
+                {% empty %}
+                <span class="project-tech-tag">未标注</span>
+                {% endfor %}
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    <p class="projects-empty" id="projects-empty" hidden>没有匹配的项目。</p>
+    {% else %}
+    <div class="projects-empty">最近 3 个月还没有符合条件的仓库更新或新 fork。</div>
+    {% endif %}
+</div>
+
+<script>
+(function () {
+  var input = document.getElementById('projects-search');
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.project-card'));
+  var empty = document.getElementById('projects-empty');
+  if (!input || !cards.length) return;
+
+  function filter() {
+    var keyword = (input.value || '').trim().toLowerCase();
+    var visible = 0;
+    cards.forEach(function (card) {
+      var blob = card.getAttribute('data-search') || '';
+      var show = !keyword || blob.indexOf(keyword) !== -1;
+      card.classList.toggle('is-hidden', !show);
+      if (show) visible += 1;
+    });
+    if (empty) empty.hidden = visible > 0;
+  }
+
+  input.addEventListener('input', filter);
+})();
+</script>
+{% endblock %}
