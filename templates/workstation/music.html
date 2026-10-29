@@ -2,7 +2,7 @@
 
 {% block workstation %}
 <h1 class="ws-title">歌单</h1>
-<p class="ws-sub">左侧选歌单，右侧管曲目。音频填外链或 `/static/music/tracks/` 路径即可。</p>
+<p class="ws-sub">左侧选歌单。把音乐文件拖进右侧，会自动放进曲库并读出歌名、歌手、封面和歌词。</p>
 
 <div class="ws-music">
     <aside class="ws-music-side">
@@ -54,6 +54,16 @@
             </div>
         </div>
 
+        <form class="ws-drop" id="music-drop" method="post" enctype="multipart/form-data" action="?p={{ current.id }}">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="upload_tracks">
+            <input type="hidden" name="playlist_id" value="{{ current.id }}">
+            <input class="ws-drop-input" type="file" name="files" accept=".mp3,.flac,.m4a,.aac,.wav,.ogg,.opus,audio/*" multiple>
+            <strong>把音乐文件拖到这里</strong>
+            <span class="ws-muted">或点击选择。支持 mp3、flac、m4a、wav、ogg，会存进曲库并读取歌名、歌手、封面、歌词。ncm 是加密格式，放不进来。</span>
+            <p class="ws-drop-status" hidden></p>
+        </form>
+
         <ul class="ws-track-list">
             {% for t in current.tracks.all %}
             <li class="ws-track-row">
@@ -92,7 +102,7 @@
             <input type="hidden" name="playlist_id" value="{{ current.id }}">
             <input type="text" name="title" placeholder="歌名" required>
             <input type="text" name="artist" placeholder="歌手">
-            <input type="text" name="src" placeholder="音频地址" required>
+            <input type="text" name="src" placeholder="文件名，或 /static/music/tracks/ 里的路径" required>
             <button type="submit" class="ws-btn ws-btn-primary">手动添加</button>
             <details class="ws-track-more">
                 <summary>更多（封面 / 歌词）</summary>
@@ -105,4 +115,90 @@
         {% endif %}
     </section>
 </div>
+<script>
+(function () {
+  function bindMusicDrop() {
+    var zone = document.getElementById("music-drop");
+    if (!zone || zone.dataset.bound === "1") return;
+    zone.dataset.bound = "1";
+    var input = zone.querySelector('input[type="file"]');
+    var status = zone.querySelector(".ws-drop-status");
+    var busy = false;
+
+    function setStatus(text, isError) {
+      status.hidden = !text;
+      status.textContent = text || "";
+      zone.classList.toggle("is-error", !!isError);
+    }
+
+    async function send(fileList) {
+      var files = Array.prototype.slice.call(fileList || []);
+      if (!files.length || busy) return;
+      busy = true;
+      var added = [];
+      var errors = [];
+      for (var i = 0; i < files.length; i += 1) {
+        setStatus("正在放入曲库 " + (i + 1) + "/" + files.length + "：" + files[i].name, false);
+        var body = new FormData();
+        body.append("csrfmiddlewaretoken", zone.querySelector("[name=csrfmiddlewaretoken]").value);
+        body.append("action", "upload_tracks");
+        body.append("playlist_id", zone.querySelector("[name=playlist_id]").value);
+        body.append("files", files[i]);
+        try {
+          var response = await fetch(zone.getAttribute("action") || window.location.pathname, {
+            method: "POST",
+            body: body,
+            headers: { "X-Requested-With": "fetch" },
+            credentials: "same-origin"
+          });
+          var data = await response.json();
+          added = added.concat(data.added || []);
+          errors = errors.concat(data.errors || []);
+        } catch (err) {
+          errors.push(files[i].name + "：上传失败");
+        }
+      }
+      input.value = "";
+      if (added.length) {
+        window.location.reload();
+        return;
+      }
+      busy = false;
+      setStatus(errors.join("；") || "没有放进去", true);
+    }
+
+    zone.addEventListener("click", function (event) {
+      if (event.target === input) return;
+      input.click();
+    });
+    zone.addEventListener("submit", function (event) {
+      event.preventDefault();
+      send(input.files);
+    });
+    zone.addEventListener("dragenter", function (event) {
+      event.preventDefault();
+      zone.classList.add("is-over");
+    });
+    zone.addEventListener("dragover", function (event) {
+      event.preventDefault();
+      zone.classList.add("is-over");
+    });
+    zone.addEventListener("dragleave", function (event) {
+      event.preventDefault();
+      zone.classList.remove("is-over");
+    });
+    zone.addEventListener("drop", function (event) {
+      event.preventDefault();
+      zone.classList.remove("is-over");
+      send(event.dataTransfer && event.dataTransfer.files);
+    });
+    input.addEventListener("change", function () {
+      send(input.files);
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", bindMusicDrop);
+  document.addEventListener("turbo:load", bindMusicDrop);
+})();
+</script>
 {% endblock %}

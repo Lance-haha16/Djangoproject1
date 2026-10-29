@@ -2,17 +2,41 @@
   position: fixed;
   inset: 0;
   z-index: 0;
-  display: none;
+  display: block;
+  opacity: 0;
+  visibility: hidden;
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
   pointer-events: none;
+  transition: opacity 0.6s ease, visibility 0.6s ease;
 }
 
+#site-wallpaper.is-on,
 body.has-bg #site-wallpaper {
-  display: block;
+  opacity: 1;
+  visibility: visible;
 }
 
+/* 固定半透明白膜：压在壁纸上、内容下，切页也保留 */
+#site-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: rgba(255, 252, 248, 0.72);
+  opacity: 0;
+  transition: opacity 0.45s ease, background 0.45s ease;
+}
+
+/* 非首页始终有白膜；有壁纸时略透一点让底图露出来 */
+body:not(.is-home) #site-veil {
+  opacity: 1;
+}
+
+body.has-bg:not(.is-home) #site-veil {
+  background: rgba(255, 252, 248, 0.55);
+}
 
 #site-season {
   position: fixed;
@@ -26,15 +50,16 @@ body.has-bg #site-wallpaper {
 .page-main,
 .site-footer {
   position: relative;
-  z-index: 1;
+  z-index: 3;
 }
 
-body.has-bg:not(.is-home) .page-main {
-  background: rgba(255, 252, 248, 0.58);
+/* 内容区本身不再叠第二层实底，白膜交给 #site-veil */
+body:not(.is-home) .page-main {
+  background: transparent;
 }
 
 body.has-bg .site-footer {
-  background: rgba(248, 249, 250, 0.88);
+  background: rgba(248, 249, 250, 0.72);
 }
 
 .custom-navbar,

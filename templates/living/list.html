@@ -4,25 +4,32 @@
 {% block title %}{{ title }} - Fly's 博客{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'site/living.css' %}?v=3">
+<link rel="stylesheet" href="{% static 'site/living.css' %}?v=4">
 
 <div class="living-page" id="living-app" data-devices="{% url 'workstation:api_living' %}">
-    <h1 class="living-title">{{ title }}</h1>
-    <p class="living-subtitle">智能家电一览 · 图片与关键参数</p>
+    <header class="living-top">
+        <div class="living-top-text">
+            <p class="living-kicker">Mi Home style</p>
+            <h1 class="living-title">我的家</h1>
+            <p class="living-subtitle" id="living-summary">设备加载中…</p>
+        </div>
+        <div class="living-search-wrap">
+            <i class="fi fi-rr-search living-search-icon" aria-hidden="true"></i>
+            <input
+                type="search"
+                id="living-search"
+                class="living-search"
+                placeholder="搜索设备"
+                autocomplete="off"
+            >
+        </div>
+    </header>
 
-    <div class="living-search-wrap">
-        <input
-            type="search"
-            id="living-search"
-            class="living-search"
-            placeholder="搜索设备名称、卖点或参数"
-            autocomplete="off"
-        >
-    </div>
+    <div class="living-rooms" id="living-rooms" role="tablist" aria-label="房间"></div>
 
     <div class="living-grid" id="living-grid"></div>
     <p class="living-empty" id="living-empty" hidden>没有匹配的设备。</p>
 </div>
 
-<script src="{% static 'site/living.js' %}?v=1"></script>
+<script src="{% static 'site/living.js' %}?v=2"></script>
 {% endblock %}

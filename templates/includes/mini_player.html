@@ -6,10 +6,12 @@
   data-turbo-permanent
   hidden
 >
-  <link rel="stylesheet" href="{% static 'site/mini-player.css' %}?v=6">
+  <link rel="stylesheet" href="{% static 'site/mini-player.css' %}?v=8">
   <audio id="smp-audio" preload="metadata"></audio>
 
-  <button type="button" class="smp-edge" id="smp-edge" title="点击或向外拉出" aria-label="展开播放器" hidden>
+  <div class="smp-hotzone" id="smp-hotzone" aria-hidden="true"></div>
+
+  <button type="button" class="smp-edge" id="smp-edge" title="靠近或点击展开" aria-label="展开播放器" hidden>
     <img id="smp-edge-cover" alt="" hidden>
     <i class="fi fi-rs-music-alt" id="smp-edge-fallback"></i>
   </button>
@@ -41,4 +43,4 @@
   </div>
 </div>
 
-<script src="{% static 'site/mini-player.js' %}?v=6"></script>
+<script src="{% static 'site/mini-player.js' %}?v=9"></script>

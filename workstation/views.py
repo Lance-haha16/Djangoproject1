@@ -16,6 +16,7 @@ from message.models import Message
 from .ai_archive import collect_month_material, generate_archive_summary
 from .chat import reply_as_cat
 from .decorators import staff_required
+from .music_files import remove_library_files, resolve_track_src, store_uploaded_track
 from .models import (
     ArchiveEntry,
     IdeaNote,
@@ -277,6 +278,7 @@ def living_view(request):
             return redirect("workstation:living")
 
         tagline = request.POST.get("tagline", "").strip()
+        room = request.POST.get("room", "").strip() or "客厅"
         image = request.POST.get("image", "").strip()
         slug_in = request.POST.get("slug", "").strip()
         try:
@@ -302,6 +304,7 @@ def living_view(request):
             device = get_object_or_404(LivingDevice, pk=pk)
             device.name = name
             device.tagline = tagline
+            device.room = room
             device.image = image
             device.sort_order = sort_order
             device.is_published = is_published
@@ -317,6 +320,7 @@ def living_view(request):
                 name=name,
                 slug=_unique_slug(LivingDevice, slug_in or name),
                 tagline=tagline,
+                room=room,
                 image=image,
                 specs=specs,
                 sort_order=sort_order,
@@ -398,24 +402,57 @@ def music_view(request):
         focus_id = request.POST.get("playlist_id")
 
         if action == "delete_playlist":
-            MusicPlaylist.objects.filter(pk=focus_id).delete()
+            playlist = MusicPlaylist.objects.filter(pk=focus_id).first()
+            urls = []
+            if playlist:
+                urls = [(track.src, track.cover) for track in playlist.tracks.all()]
+                playlist.delete()
+                for src, cover in urls:
+                    remove_library_files(src, cover)
             messages.success(request, "歌单已删除。")
             return redirect("workstation:music")
 
         if action == "delete_track":
             track = MusicTrack.objects.filter(pk=request.POST.get("track_id")).select_related("playlist").first()
             pid = track.playlist_id if track else focus_id
+            src = cover = ""
             if track:
+                src, cover = track.src, track.cover
                 track.delete()
+                remove_library_files(src, cover)
             messages.success(request, "曲目已删除。")
             return _music_redirect(pid)
+
+        if action == "upload_tracks":
+            playlist = get_object_or_404(MusicPlaylist, pk=focus_id)
+            uploads = request.FILES.getlist("files")
+            wants_json = request.headers.get("X-Requested-With") == "fetch"
+            if not uploads:
+                if wants_json:
+                    return JsonResponse({"ok": False, "added": [], "errors": ["没有收到文件。"]}, status=400)
+                messages.error(request, "没有收到文件。")
+                return _music_redirect(playlist.id)
+            added, errors = [], []
+            for uploaded in uploads:
+                error, title = store_uploaded_track(playlist, uploaded)
+                if error:
+                    errors.append(error)
+                else:
+                    added.append(title)
+            if added:
+                messages.success(request, "已放入曲库：" + "、".join(added[:8]))
+            if errors and (added or not wants_json):
+                messages.error(request, "；".join(errors[:8]))
+            if wants_json:
+                return JsonResponse({"ok": bool(added), "added": added, "errors": errors})
+            return _music_redirect(playlist.id)
 
         if action == "save_track":
             playlist = get_object_or_404(MusicPlaylist, pk=focus_id)
             title = request.POST.get("title", "").strip()
-            src = request.POST.get("src", "").strip()
-            if not title or not src:
-                messages.error(request, "标题和音频地址不能为空。")
+            src, src_error = resolve_track_src(request.POST.get("src", ""))
+            if not title or src_error:
+                messages.error(request, src_error or "歌名不能为空。")
                 return _music_redirect(playlist.id)
             lyrics_raw = request.POST.get("lyrics", "").strip()
             lyrics = []

@@ -1,8 +1,10 @@
 [
   {
     "id": "air-purifier",
-    "name": "智能空气净化器 4 Pro",
-    "tagline": "全屋循环 · 安静除醛",
+    "name": "空气净化器 4 Pro",
+    "tagline": "空气优 · 32 μg/m³",
+    "room": "客厅",
+    "online": true,
     "image": "/static/living/img/air-purifier.svg",
     "specs": [
       { "label": "CADR", "value": "500 m³/h" },
@@ -14,7 +16,9 @@
   {
     "id": "robot-vacuum",
     "name": "扫拖机器人 S10",
-    "tagline": "激光导航 · 自动集尘",
+    "tagline": "待机中 · 已充满",
+    "room": "客厅",
+    "online": true,
     "image": "/static/living/img/robot-vacuum.svg",
     "specs": [
       { "label": "吸力", "value": "4000 Pa" },
@@ -26,7 +30,9 @@
   {
     "id": "desk-lamp",
     "name": "智能台灯 1S",
-    "tagline": "护眼读写 · 色温可调",
+    "tagline": "读写模式 · 4500K",
+    "room": "书房",
+    "online": true,
     "image": "/static/living/img/desk-lamp.svg",
     "specs": [
       { "label": "色温", "value": "2700–6500 K" },
@@ -38,7 +44,9 @@
   {
     "id": "humidifier",
     "name": "智能加湿器 2",
-    "tagline": "恒湿保湿 · 上加水",
+    "tagline": "恒湿 55% · 运行中",
+    "room": "卧室",
+    "online": true,
     "image": "/static/living/img/humidifier.svg",
     "specs": [
       { "label": "雾量", "value": "300 ml/h" },

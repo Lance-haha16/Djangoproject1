@@ -1,7 +1,15 @@
-{% extends "home/base.html" %}
+{% extends "base.html" %}
 {% load static %}
 
 {% block title %}首页 - Fly's 博客{% endblock %}
+
+{% block head_meta %}
+{# 与全站一致用 no-preview，避免切回首页时 permanent 音频被重建断歌 #}
+<meta name="turbo-cache-control" content="no-preview">
+{% endblock %}
+
+{% block body_class %}is-home{% endblock %}
+{% block main_class %}page-main-home{% endblock %}
 
 {% block content %}
 <!-- 全屏动态星空画面+打字机 -->
@@ -51,7 +59,7 @@
     </div>
 </div>
 
-<link rel="stylesheet" href="{% static 'site/home-widgets.css' %}?v=5">
+<link rel="stylesheet" href="{% static 'site/home-widgets.css' %}?v=7">
 
 <div id="main-content" class="home-widgets">
     <div class="home-widgets-row">
@@ -87,7 +95,6 @@
                     <a href="{% url 'section' 'music' %}" style="font-size:0.8rem;color:#4f46e5;font-weight:650;text-decoration:none;">打开音乐页 →</a>
                 </div>
             </div>
-            <audio id="home-audio" preload="metadata"></audio>
         </div>
     </div>
 
@@ -134,207 +141,7 @@
 </div>
 {% endblock %}
 
-{% block script %}
-{{ block.super }}
-<script src="{% static 'site/home-widgets.js' %}?v=6"></script>
-<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    // 滚到小组件区：完整离开 hero，让顶栏出现；内容区自带顶栏留白
-    var scrollDown = document.getElementById("hero-scroll-down");
-    var mainContent = document.getElementById("main-content");
-    function scrollToWidgets(e) {
-        if (!mainContent) return;
-        if (e) e.preventDefault();
-        var top = mainContent.getBoundingClientRect().top + window.pageYOffset;
-        window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
-    }
-    if (scrollDown) scrollDown.addEventListener("click", scrollToWidgets);
-    if (location.hash === "#main-content") {
-        requestAnimationFrame(function () { scrollToWidgets(); });
-    }
-
-    // 打字机动画
-    new Typed('#typed', {
-        strings: [
-            "远行没有目的",
-            "距离不是问题",
-            "不爱了是你的谜底"
-        ],
-        typeSpeed: 60,
-        backSpeed: 30,
-        backDelay: 1800,
-        startDelay: 500,
-        loop: true,
-        showCursor: true,
-        cursorChar: '|'
-    });
-
-    // 星空与流星动画
-    const canvas = document.getElementById('star-canvas');
-    const ctx = canvas.getContext('2d');
-    let w, h;
-
-    function resizeCanvas() {
-        w = canvas.width = document.getElementById('hero').offsetWidth;
-        h = canvas.height = document.getElementById('hero').offsetHeight;
-    }
-    resizeCanvas();
-    window.addEventListener('resize', () => {
-        resizeCanvas();
-        createStars();
-    });
-
-    // 多层星星
-    const STAR_LAYERS = [
-        { num: 120, size: [0.5, 1.2], speed: 0.04, alpha: [0.5, 1] }, // 远
-        { num: 30, size: [1, 2], speed: 0.10, alpha: [0.7, 1] },     // 中
-        { num: 10, size: [1.5, 2.5], speed: 0.16, alpha: [0.8, 1] }  // 近
-    ];
-    let stars = [];
-    function createStars() {
-        stars = [];
-        STAR_LAYERS.forEach(layer => {
-            for (let i = 0; i < layer.num; i++) {
-                stars.push({
-                    x: Math.random() * w,
-                    y: Math.random() * h,
-                    r: Math.random() * (layer.size[1] - layer.size[0]) + layer.size[0],
-                    alpha: Math.random() * (layer.alpha[1] - layer.alpha[0]) + layer.alpha[0],
-                    vx: layer.speed * (Math.random() * 2.4 + 2.8),
-                    vy: layer.speed * (Math.random() * 1.2 + 1.4) // 速度较大且为正
-                });
-            }
-        });
-    }
-    createStars();
-
-    // 流星
-    let meteors = [];
-    function createMeteor() {
-        // 让流星更倾斜（20°~36°）
-        const minAngle = Math.PI / 9;  // 20°
-        const maxAngle = Math.PI / 5;  // 36°
-        const angle = minAngle + Math.random() * (maxAngle - minAngle);
-        meteors.push({
-            x: Math.random() * w * 0.8 + w * 0.1,
-            y: Math.random() * h * 0.3,
-            len: Math.random() * 120 + 120,
-            speed: Math.random() * 2 + 2.4,
-            angle: angle,
-            alpha: 1,
-            life: 0
-        });
-    }
-
-    let meteorTimer = 0;
-    let gradientAngle = 90; // 初始渐变角度
-
-    function draw() {
-        // 1. 动态渐变背景
-        gradientAngle += 0; // 让渐变角度缓慢变化
-        let rad = gradientAngle * Math.PI / 180;
-        let x1 = w/2 + Math.cos(rad) * w;
-        let y1 = h/2 + Math.sin(rad) * h;
-        let x2 = w/2 - Math.cos(rad) * w;
-        let y2 = h/2 - Math.sin(rad) * h;
-        let gradient = ctx.createLinearGradient(x1, y1, x2, y2);
-        gradient.addColorStop(1,    '#432E54'); // 顶部
-        gradient.addColorStop(0.55, '#69648C'); // 第二段
-        gradient.addColorStop(0.3,  '#B66077'); // 第三段
-        gradient.addColorStop(0.15, '#B66077'); // 第四段
-        gradient.addColorStop(0,    '#E9CBE0'); // 底部
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, w, h);
-
-        // 2. 星星
-        for (let s of stars) {
-            ctx.save();
-            ctx.globalAlpha = s.alpha;
-            // 半径动态变化
-            let drawR = s.r;
-            if (s.x < w/2) {
-                // 线性插值，左侧最小0.4倍，越靠右越接近1倍
-                let ratio = s.x / (w/2); // 0~1
-                drawR = s.r * (0.4 + 0.6 * ratio);
-            }
-            ctx.beginPath();
-            ctx.arc(s.x, s.y, drawR, 0, 2 * Math.PI);
-            ctx.fillStyle = '#fff';
-            ctx.shadowColor = '#fff';
-            ctx.shadowBlur = 8;
-            ctx.fill();
-            ctx.restore();
-
-            // 只向右移动
-            s.x += s.vx;
-            if (s.x > w) s.x = 0;
-            // 闪烁
-            s.alpha += (Math.random() - 0.5) * 0.02;
-            if (s.alpha < 0.3) s.alpha = 0.3;
-            if (s.alpha > 1) s.alpha = 1;
-            s.y += s.vy;
-            if (s.y > h) s.y = 0;
-        }
-
-        // 3. 流星
-        for (let i = meteors.length - 1; i >= 0; i--) {
-            let m = meteors[i];
-            ctx.save();
-            // 拖尾渐变，方向与流星一致
-            let meteorGrad = ctx.createLinearGradient(
-                m.x, m.y,
-                m.x - m.len * Math.cos(m.angle),
-                m.y - m.len * Math.sin(m.angle) // 注意这里是减号
-            );
-            meteorGrad.addColorStop(0, 'rgba(255,255,255,1)');
-            meteorGrad.addColorStop(0.2, 'rgba(255,255,255,0.6)');
-            meteorGrad.addColorStop(1, 'rgba(255,255,255,0)');
-            ctx.strokeStyle = meteorGrad;
-            ctx.beginPath();
-            ctx.moveTo(m.x, m.y);
-            // 拖尾线段应为 (m.x, m.y) 到 (tailX, tailY)。
-            let tailX = m.x - m.len * Math.cos(m.angle);
-            let tailY = m.y - m.len * Math.sin(m.angle);
-            ctx.lineTo(tailX, tailY);
-            ctx.lineWidth = 2.5;
-            ctx.shadowColor = '#fff';
-            ctx.shadowBlur = 16;
-            ctx.globalAlpha = m.alpha;
-            ctx.stroke();
-            ctx.restore();
-
-            // 头部光晕
-            ctx.save();
-            ctx.beginPath();
-            ctx.arc(m.x, m.y, 2.5, 0, 2 * Math.PI);
-            ctx.fillStyle = 'rgba(255,255,255,0.8)';
-            ctx.shadowColor = '#fff';
-            ctx.shadowBlur = 16;
-            ctx.globalAlpha = m.alpha;
-            ctx.fill();
-            ctx.restore();
-
-            // 运动
-            m.x += m.speed * Math.cos(m.angle);
-            m.y += m.speed * Math.sin(m.angle);
-            m.alpha -= 0.012;
-            m.life++;
-            if (m.alpha <= 0 || m.x < -200 || m.y > h + 200 || m.life > 120) meteors.splice(i, 1);
-        }
-
-        // 随机生成流星
-        meteorTimer++;
-        if (meteorTimer > 120 + Math.random() * 120) {
-            createMeteor();
-            meteorTimer = 0;
-        }
-
-        requestAnimationFrame(draw);
-    }
-    draw();
-});
-</script>
+{% block extra_head %}
 <style>
 @keyframes bounce {
   0%, 100% { transform: translateY(0);}

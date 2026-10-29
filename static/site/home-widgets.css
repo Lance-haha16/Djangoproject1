@@ -11,6 +11,25 @@
   align-content: start;
 }
 
+.home-widgets > * {
+  animation: home-widget-in 1.15s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.home-widgets > *:nth-child(1) { animation-delay: 0.18s; }
+.home-widgets > *:nth-child(2) { animation-delay: 0.36s; }
+.home-widgets > *:nth-child(3) { animation-delay: 0.54s; }
+
+@keyframes home-widget-in {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 .home-widgets-row {
   display: grid;
   grid-template-columns: 1.15fr 0.85fr;

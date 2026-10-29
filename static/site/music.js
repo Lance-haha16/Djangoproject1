@@ -19,6 +19,8 @@
   var timeTotal = document.getElementById("music-time-total");
   var lyricsBox = document.getElementById("music-lyrics");
   var playlistView = document.getElementById("music-playlist-view");
+  var scrollUpBtn = document.getElementById("music-scroll-up");
+  var scrollDownBtn = document.getElementById("music-scroll-down");
   var tabs = Array.prototype.slice.call(document.querySelectorAll(".music-tab"));
   var panelLyrics = document.getElementById("music-panel-lyrics");
   var panelPlaylist = document.getElementById("music-panel-playlist");
@@ -172,7 +174,7 @@
 
       var key = playlist.id || String(pIndex);
       if (typeof collapsedPlaylists[key] === "undefined") {
-        collapsedPlaylists[key] = pIndex !== playlistIndex;
+        collapsedPlaylists[key] = false;
       }
       var collapsed = !!collapsedPlaylists[key] && !q;
 
@@ -232,6 +234,21 @@
     });
 
     if (!any) playlistView.innerHTML = '<p class="music-empty">没有匹配的曲目</p>';
+    updateScrollButtons();
+  }
+
+  function updateScrollButtons() {
+    if (!playlistView || !scrollUpBtn || !scrollDownBtn) return;
+    var max = playlistView.scrollHeight - playlistView.clientHeight;
+    var top = playlistView.scrollTop;
+    scrollUpBtn.hidden = max <= 4 || top <= 4;
+    scrollDownBtn.hidden = max <= 4 || top >= max - 4;
+  }
+
+  function scrollPlaylist(dir) {
+    if (!playlistView) return;
+    var step = Math.max(140, Math.round(playlistView.clientHeight * 0.72));
+    playlistView.scrollBy({ top: dir * step, behavior: "smooth" });
   }
 
   function activeLyricIndex(time) {
@@ -284,7 +301,23 @@
     var s = sm();
     if (s) {
       var i = flatIndexForCurrent();
-      if (i >= 0) s.playAt(i, !!autoplay);
+      if (i >= 0) {
+        s.playAt(i, !!autoplay);
+        return;
+      }
+      var audioNode = s.getAudio && s.getAudio();
+      if (audioNode && track.src) {
+        audioNode.src = track.src;
+        audioNode.setAttribute("data-src", track.src);
+        if (typeof s.reload === "function") s.reload(false);
+        if (autoplay) {
+          audioNode.play().then(function () {
+            setPlayingUi(true);
+          }).catch(function () {
+            setPlayingUi(false);
+          });
+        }
+      }
       return;
     }
 
@@ -340,6 +373,7 @@
       panelPlaylist.classList.toggle("is-active", panel === "playlist");
       panelLyrics.hidden = panel !== "lyrics";
       panelPlaylist.hidden = panel !== "playlist";
+      if (panel === "playlist") requestAnimationFrame(updateScrollButtons);
     });
   });
 
@@ -349,6 +383,11 @@
       renderPlaylistView();
     });
   }
+
+  if (scrollUpBtn) scrollUpBtn.addEventListener("click", function () { scrollPlaylist(-1); });
+  if (scrollDownBtn) scrollDownBtn.addEventListener("click", function () { scrollPlaylist(1); });
+  if (playlistView) playlistView.addEventListener("scroll", updateScrollButtons);
+  window.addEventListener("resize", updateScrollButtons);
 
   if (lyricsBox) {
     lyricsBox.addEventListener("wheel", function () {

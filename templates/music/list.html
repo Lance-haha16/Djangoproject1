@@ -4,7 +4,7 @@
 {% block title %}{{ title }} - Fly's 博客{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'site/music.css' %}?v=9">
+<link rel="stylesheet" href="{% static 'site/music.css' %}?v=11">
 
 <div class="music-page" id="music-app" data-playlists="{% url 'workstation:api_music' %}">
     <div class="music-shell">
@@ -64,7 +64,15 @@
                 </div>
                 <div class="music-panel" id="music-panel-playlist" role="tabpanel" hidden>
                     <input type="search" class="music-search" id="music-search" placeholder="搜索歌曲、歌手" autocomplete="off">
-                    <div class="music-playlist-view" id="music-playlist-view"></div>
+                    <div class="music-playlist-wrap">
+                        <button type="button" class="music-scroll-btn is-up" id="music-scroll-up" aria-label="向上滚动歌单" hidden>
+                            <i class="fas fa-chevron-up"></i>
+                        </button>
+                        <div class="music-playlist-view" id="music-playlist-view"></div>
+                        <button type="button" class="music-scroll-btn is-down" id="music-scroll-down" aria-label="向下滚动歌单" hidden>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
                 </div>
             </section>
         </div>
@@ -74,5 +82,5 @@
 {% endblock %}
 
 {% block script %}
-<script src="{% static 'site/music.js' %}?v=11"></script>
+<script src="{% static 'site/music.js' %}?v=13"></script>
 {% endblock %}

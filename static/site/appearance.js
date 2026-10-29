@@ -1,4 +1,11 @@
 (function () {
+  if (window.__siteAppearanceBound) {
+    if (window.SiteAppearance && typeof window.SiteAppearance.refresh === "function") {
+      window.SiteAppearance.refresh();
+    }
+    return;
+  }
+
   var STORAGE_KEY = "blog.appearance";
   var DB_NAME = "blog-appearance";
   var STORE = "backgrounds";
@@ -8,7 +15,14 @@
   var settingsRoot = document.getElementById("site-settings");
   var wallpaper = document.getElementById("site-wallpaper");
   var seasonCanvas = document.getElementById("site-season");
+  var veil = document.getElementById("site-veil");
   if (!settingsRoot || !wallpaper || !seasonCanvas) return;
+
+  window.__siteAppearanceBound = true;
+
+  function elWallpaper() {
+    return document.getElementById("site-wallpaper") || wallpaper;
+  }
 
   var toggle = document.getElementById("site-settings-toggle");
   var panel = document.getElementById("site-settings-panel");
@@ -206,6 +220,7 @@
   }
 
   function applyBlur() {
+    var layer = elWallpaper();
     state.blur = normalizeBlur(state.blur);
     if (blurRange) {
       blurRange.value = String(state.blur);
@@ -213,25 +228,29 @@
       blurRange.style.background = "linear-gradient(90deg, #1d6fb8 " + percent + "%, #d5d8de " + percent + "%)";
     }
     if (blurValue) blurValue.textContent = state.blur + "px";
+    if (!layer) return;
     if (state.blur > 0) {
-      wallpaper.style.filter = "blur(" + state.blur + "px)";
-      wallpaper.style.transform = "scale(" + (1 + state.blur / 160).toFixed(3) + ")";
+      layer.style.filter = "blur(" + state.blur + "px)";
+      layer.style.transform = "scale(" + (1 + state.blur / 160).toFixed(3) + ")";
     } else {
-      wallpaper.style.filter = "";
-      wallpaper.style.transform = "";
+      layer.style.filter = "";
+      layer.style.transform = "";
     }
   }
 
   function applyState() {
+    var layer = elWallpaper();
+    if (!layer) return;
     applyBlur();
-    document.body.classList.toggle("has-bg", false);
     if (activeObjectUrl) {
       URL.revokeObjectURL(activeObjectUrl);
       activeObjectUrl = "";
     }
     if (!state.background) {
-      wallpaper.style.backgroundImage = "";
-      wallpaper.setAttribute("hidden", "");
+      layer.style.backgroundImage = "";
+      layer.classList.remove("is-on");
+      layer.removeAttribute("hidden");
+      document.body.classList.remove("has-bg");
       markActive();
       syncSeason();
       return;
@@ -263,11 +282,27 @@
   }
 
   function showWallpaper(url) {
-    wallpaper.style.backgroundImage = "url(\"" + url.replace(/"/g, "\\\"") + "\")";
-    wallpaper.removeAttribute("hidden");
+    var layer = elWallpaper();
+    if (!layer || !url) return;
+    layer.style.backgroundImage = "url(\"" + String(url).replace(/"/g, "\\\"") + "\")";
+    layer.removeAttribute("hidden");
+    layer.classList.add("is-on");
     document.body.classList.add("has-bg");
+    if (veil) veil.classList.add("is-on");
     markActive();
   }
+
+  window.SiteAppearance = {
+    refresh: function () {
+      state = loadState();
+      if (seasonToggle) seasonToggle.checked = state.season;
+      applyState();
+    }
+  };
+
+  document.addEventListener("turbo:load", function () {
+    if (window.SiteAppearance) window.SiteAppearance.refresh();
+  });
 
   function createPager(root) {
     if (!root) return null;

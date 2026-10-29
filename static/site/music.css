@@ -13,7 +13,7 @@
   width: 100%;
   min-height: 72vh;
   padding: 16px 0 64px;
-  overflow: hidden;
+  overflow: visible;
   color: var(--ne-text);
 }
 
@@ -72,7 +72,8 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
-  max-height: min(520px, 68vh);
+  height: min(680px, calc(100vh - 180px));
+  max-height: min(680px, calc(100vh - 180px));
   width: 100%;
 }
 
@@ -351,20 +352,71 @@
   border-color: rgba(236, 65, 65, 0.45);
 }
 
+.music-playlist-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.music-scroll-btn {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  cursor: pointer;
+}
+
+.music-scroll-btn:hover {
+  background: rgba(236, 65, 65, 0.35);
+}
+
+.music-scroll-btn.is-up {
+  margin-bottom: 6px;
+}
+
+.music-scroll-btn.is-down {
+  margin-top: 6px;
+}
+
 .music-playlist-view {
   flex: 1;
   min-height: 0;
-  max-height: 100%;
-  overflow-y: auto;
+  overflow-y: scroll;
   overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
   gap: 2px;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  scrollbar-gutter: stable;
+  scrollbar-width: auto;
+  scrollbar-color: rgba(255, 255, 255, 0.45) rgba(255, 255, 255, 0.08);
+}
+
+.music-playlist-view::-webkit-scrollbar {
+  width: 10px;
+}
+
+.music-playlist-view::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+}
+
+.music-playlist-view::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.45);
+  border-radius: 999px;
 }
 
 .music-pl-group {
+  flex: 0 0 auto;
   margin-bottom: 8px;
   border-radius: 10px;
   background: rgba(0, 0, 0, 0.18);
@@ -503,7 +555,8 @@
   }
 
   .music-right {
-    max-height: min(460px, 60vh);
+    height: min(520px, 62vh);
+    max-height: min(520px, 62vh);
   }
 
   .music-cover-stage {

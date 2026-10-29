@@ -28,7 +28,7 @@ def user_login(request):
             return HttpResponse("账号或密码输入不合法")
     elif request.method == 'GET':
         user_login_form = UserLoginForm()
-        context = { 'form': user_login_form }
+        context = {'form': user_login_form}
         return render(request, 'userprofile/login.html', context)
     else:
         return HttpResponse("请使用GET或POST请求数据")

@@ -49,6 +49,7 @@ class LivingDevice(models.Model):
     slug = models.SlugField(max_length=80, unique=True)
     name = models.CharField(max_length=120)
     tagline = models.CharField(max_length=200, blank=True)
+    room = models.CharField(max_length=60, blank=True, default="客厅", help_text="米家风格房间名")
     image = models.CharField(max_length=255, blank=True, help_text="静态路径或上传后的 URL")
     image_file = models.ImageField(upload_to="living/%Y%m/", blank=True)
     specs = models.JSONField(default=list, blank=True)
@@ -75,8 +76,10 @@ class LivingDevice(models.Model):
             "id": self.slug,
             "name": self.name,
             "tagline": self.tagline,
+            "room": self.room or "客厅",
             "image": self.image_url(),
             "specs": self.specs or [],
+            "online": True,
         }
 
 

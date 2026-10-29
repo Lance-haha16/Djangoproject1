@@ -64,7 +64,6 @@
     <script src="{% static 'site/appearance.js' %}?v=4"></script>
     <link rel="stylesheet" href="{% static 'site/cybercat.css' %}?v=1">
     <script src="{% static 'site/cybercat.js' %}?v=2"></script>
-    {% include "includes/mini_player.html" %}
     {% block script %}{% endblock script %}
     <script>
       document.addEventListener("turbo:before-visit", function (e) {

@@ -15,14 +15,41 @@
   display: none;
   position: absolute;
   top: 100%;
-  left: 0;
+  right: 0;
+  left: auto;
+  margin: 0;
+  min-width: 10rem;
+  padding: 0.35rem 0;
   background-color: #fff;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 1000;
 }
 
-.dropdown-hover:hover .dropdown-menu {
+.dropdown-hover::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 12px;
+}
+
+.dropdown-hover:hover .dropdown-menu,
+.dropdown-hover:focus-within .dropdown-menu {
   display: block;
+}
+
+.dropdown-logout {
+  margin: 0.3rem 0 0;
+  border-top: 1px solid rgba(40, 48, 64, 0.12);
+}
+
+.dropdown-logout .dropdown-item {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
 }
 
 .rounded-circle {
@@ -223,8 +250,11 @@
                 <span class="badge badge-danger">{{ unread_count }}</span>
                 {% endif %}
               </a>
-              <a class="dropdown-item" href="{% url "userprofile:logout" %}">退出登录</a>
-              <a class="dropdown-item" href='{% url "userprofile:edit" user.id %}'>个人信息</a>
+              <a class="dropdown-item" href="{% url 'userprofile:edit' user.id %}">个人信息</a>
+              <form class="dropdown-logout" method="post" action="{% url 'userprofile:logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="dropdown-item">退出登录</button>
+              </form>
             </div>
           </div>
         </li>

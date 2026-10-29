@@ -1,38 +1,55 @@
 (function () {
-  var ageBar = document.getElementById("home-agebar");
-  var daysNode = document.getElementById("site-days-num");
-  var hoursNode = document.getElementById("site-hours-num");
-  var minsNode = document.getElementById("site-mins-num");
-  var secsNode = document.getElementById("site-secs-num");
-  if (!ageBar || !daysNode || !hoursNode || !minsNode || !secsNode) return;
-  if (ageBar.dataset.ageBound === "1") return;
-  ageBar.dataset.ageBound = "1";
+  if (window.__homeWidgetsBooted) return;
+  window.__homeWidgetsBooted = true;
 
-  var since = new Date((ageBar.getAttribute("data-since") || "2025-07-01") + "T00:00:00");
-  if (isNaN(since.getTime())) return;
+  var ageTimer = 0;
 
-  function pad(n) {
-    return String(n).padStart(2, "0");
+  function bindAge() {
+    var ageBar = document.getElementById("home-agebar");
+    var daysNode = document.getElementById("site-days-num");
+    var hoursNode = document.getElementById("site-hours-num");
+    var minsNode = document.getElementById("site-mins-num");
+    var secsNode = document.getElementById("site-secs-num");
+    if (!ageBar || !daysNode || !hoursNode || !minsNode || !secsNode) return;
+    if (ageBar.dataset.ageBound === "1") return;
+    ageBar.dataset.ageBound = "1";
+
+    var since = new Date((ageBar.getAttribute("data-since") || "2025-07-01") + "T00:00:00");
+    if (isNaN(since.getTime())) return;
+
+    function pad(n) {
+      return String(n).padStart(2, "0");
+    }
+
+    function render() {
+      if (!document.getElementById("home-agebar")) return;
+      var diff = Math.max(0, Date.now() - since.getTime());
+      var totalSec = Math.floor(diff / 1000);
+      var days = Math.floor(totalSec / 86400);
+      var hours = Math.floor((totalSec % 86400) / 3600);
+      var mins = Math.floor((totalSec % 3600) / 60);
+      var secs = totalSec % 60;
+      daysNode.textContent = String(days);
+      hoursNode.textContent = pad(hours);
+      minsNode.textContent = pad(mins);
+      secsNode.textContent = pad(secs);
+    }
+
+    render();
+    if (ageTimer) clearInterval(ageTimer);
+    ageTimer = setInterval(render, 1000);
   }
 
-  function render() {
-    var diff = Math.max(0, Date.now() - since.getTime());
-    var totalSec = Math.floor(diff / 1000);
-    var days = Math.floor(totalSec / 86400);
-    var hours = Math.floor((totalSec % 86400) / 3600);
-    var mins = Math.floor((totalSec % 3600) / 60);
-    var secs = totalSec % 60;
-    daysNode.textContent = String(days);
-    hoursNode.textContent = pad(hours);
-    minsNode.textContent = pad(mins);
-    secsNode.textContent = pad(secs);
-  }
-
-  render();
-  setInterval(render, 1000);
+  document.addEventListener("turbo:load", bindAge);
+  if (document.readyState !== "loading") bindAge();
+  else document.addEventListener("DOMContentLoaded", bindAge);
 })();
 
 (function () {
+  if (window.__homeCloudBooted) return;
+  window.__homeCloudBooted = true;
+
+  function bindCloud() {
   var cloud = document.getElementById("home-cloud");
   var lyricBar = document.getElementById("home-lyricbar");
   if (!cloud || !lyricBar || cloud.dataset.wired === "1") return;
@@ -44,18 +61,12 @@
   var artistEl = document.getElementById("home-cloud-artist");
   var lineEl = document.getElementById("home-cloud-line");
   var lyricText = document.getElementById("home-lyric-text");
-  var legacyAudio = document.getElementById("home-audio");
   var playBtn = document.getElementById("home-cloud-play");
 
   var track = null;
   var lyrics = [];
   var typingTimer = 0;
   var currentLyric = "";
-
-  if (legacyAudio) {
-    legacyAudio.removeAttribute("src");
-    legacyAudio.pause();
-  }
 
   function typeLyric(text) {
     clearInterval(typingTimer);
@@ -155,4 +166,9 @@
   }
 
   waitSiteMusic();
+  }
+
+  document.addEventListener("turbo:load", bindCloud);
+  if (document.readyState !== "loading") bindCloud();
+  else document.addEventListener("DOMContentLoaded", bindCloud);
 })();

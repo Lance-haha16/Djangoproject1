@@ -1,21 +1,22 @@
 {% load static %}
 
 <!DOCTYPE html>
-<!-- 网站主语言 -->
 <html lang="zh-cn">
 
 <head>
-    <!-- 网站采用的字符编码 -->
     <meta charset="utf-8">
-    <!-- 预留网站标题的位置 -->
     <title>{% block title %}{% endblock %}</title>
-    <!-- 引入bootstrap的css文件 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {# 关闭预览快照，减少切页白闪 #}
+    <meta name="turbo-cache-control" content="no-preview">
+    {% block head_meta %}{% endblock %}
     <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'md_css/monokai.css' %}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
     <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-straight/css/uicons-regular-straight.css">
-    <link rel="stylesheet" href="{% static 'site/appearance.css' %}?v=4">
+    <link rel="stylesheet" href="{% static 'site/appearance.css' %}?v=7">
+    <link rel="stylesheet" href="{% static 'site/cybercat.css' %}?v=3">
     <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.12/dist/turbo.es2017-umd.js" defer></script>
     <style>
       .turbo-progress-bar {
@@ -27,57 +28,81 @@
         z-index: 13000;
         transition: width 300ms ease-out, opacity 150ms linear;
       }
+      /* 主内容在白膜上轻柔浮现 */
+      #page-main {
+        animation: page-main-in 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      @keyframes page-main-in {
+        from { opacity: 0.25; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
     </style>
+    {% block extra_head %}{% endblock %}
 </head>
 
-<body class="site-body">
-    <div id="site-wallpaper" data-turbo-permanent hidden></div>
+<body class="site-body {% block body_class %}{% endblock %}">
+    <div id="site-wallpaper" data-turbo-permanent></div>
+    <div id="site-veil" data-turbo-permanent aria-hidden="true"></div>
     <canvas id="site-season" data-turbo-permanent hidden></canvas>
-    <!-- 引入导航栏 -->
-    {% include 'header.html' %}
-    <!-- 预留具体页面的位置 -->
-    <main class="page-main">
-    {% block content %}{% endblock content %}
-    </main>
-    <!-- 引入注脚 -->
-    {% include 'footer.html' %}
-    <!-- bootstrap.js 依赖 jquery.js 和popper.js，因此在这里引入 -->
-    <script src="{% static 'jquery/jquery-3.3.1.js' %}"></script>
-    {% include 'back_to_top_func.html' %}
-    <!-- 
-        popper.js 采用 cdn 远程引入，意思是你不需要把它下载到本地。
-        在实际的开发中推荐静态文件尽量都使用 cdn 的形式。 
-        教程采用本地引入是为了让读者了解静态文件本地部署的流程。
-    -->
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1-lts/dist/umd/popper.min.js"></script>
-   
-    <!-- 引入bootstrap的js文件 -->
-    <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
-    <script src="{% static 'layer/layer.js' %}"></script>
-    <script>
-      window.SITE_APPEARANCE = {
-        background: "{{ site_appearance.background|escapejs }}",
-        blur: {{ site_appearance.blur|default:0 }},
-        season: {% if site_appearance.season %}true{% else %}false{% endif %}
-      };
-    </script>
-    <script src="{% static 'site/appearance.js' %}?v=4"></script>
-    <link rel="stylesheet" href="{% static 'site/cybercat.css' %}?v=1">
-    <script src="{% static 'site/cybercat.js' %}?v=2"></script>
+    {# 占位必须写在模板里，否则 Turbo 切页会把 JS 插入的小猫丢掉 #}
+    <div id="cyber-cat" class="cyber-cat" data-turbo-permanent></div>
+    {# 播放器独立 permanent，避免嵌在 runtime 里被 Turbo 误替换导致断歌 #}
     {% include "includes/mini_player.html" %}
+
+    {# 顶栏跨页保留，避免切页闪一下。id 带上用户，登录/退出后不再沿用旧顶栏。 #}
+    <div id="site-header-u{{ user.pk|default:'0' }}" data-turbo-permanent>
+        {% include 'header.html' %}
+    </div>
+
+    <main id="page-main" class="page-main {% block main_class %}{% endblock %}">
+        {% block content %}{% endblock content %}
+    </main>
+
+    <div id="site-footer" data-turbo-permanent>
+        {% include 'footer.html' %}
+    </div>
+
+    {# 公共脚本只加载一次，切页不再整包重跑 #}
+    <div id="site-runtime" data-turbo-permanent>
+      <script src="{% static 'jquery/jquery-3.3.1.js' %}"></script>
+      {% include 'back_to_top_func.html' %}
+      <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1-lts/dist/umd/popper.min.js"></script>
+      <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+      <script src="{% static 'layer/layer.js' %}"></script>
+      <script>
+        window.SITE_APPEARANCE = {
+          background: "{{ site_appearance.background|escapejs }}",
+          blur: {{ site_appearance.blur|default:0 }},
+          season: {% if site_appearance.season %}true{% else %}false{% endif %}
+        };
+      </script>
+      <script src="{% static 'site/appearance.js' %}?v=7"></script>
+      <script src="{% static 'site/cybercat.js' %}?v=4"></script>
+      <script src="{% static 'site/home-widgets.js' %}?v=8"></script>
+      <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+      <script src="{% static 'site/home-hero.js' %}?v=1"></script>
+      <script>
+        if (!window.__siteTurboHooks) {
+          window.__siteTurboHooks = true;
+          document.addEventListener("turbo:before-visit", function (e) {
+            try {
+              var path = new URL(e.detail.url, window.location.origin).pathname || "";
+              if (path.indexOf("/admin/") === 0 || path.indexOf("/accounts/") === 0) {
+                e.preventDefault();
+                window.location.href = e.detail.url;
+              }
+            } catch (err) {}
+          });
+          document.addEventListener("turbo:load", function () {
+            var isHome = !!document.getElementById("hero");
+            document.body.classList.toggle("is-home", isHome);
+            var main = document.getElementById("page-main");
+            if (main) main.classList.toggle("page-main-home", isHome);
+          });
+        }
+      </script>
+    </div>
     {% block script %}{% endblock script %}
-    <script>
-      // 仅后台登录/管理走整页刷新；工作台也用 Turbo，避免打断迷你播放器
-      document.addEventListener("turbo:before-visit", function (e) {
-        try {
-          var path = new URL(e.detail.url, window.location.origin).pathname || "";
-          if (path.indexOf("/admin/") === 0 || path.indexOf("/accounts/") === 0) {
-            e.preventDefault();
-            window.location.href = e.detail.url;
-          }
-        } catch (err) {}
-      });
-    </script>
 </body>
 
 </html>

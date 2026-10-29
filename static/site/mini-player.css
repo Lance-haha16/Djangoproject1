@@ -2,6 +2,7 @@
 .smp {
   --smp-bg: rgba(36, 36, 36, 0.94);
   --smp-red: #ec4141;
+  --smp-peek: 14px;
   position: fixed;
   z-index: 12000;
   left: 24px;
@@ -10,6 +11,15 @@
   font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
   user-select: none;
   touch-action: none;
+  opacity: 0;
+  transform: translateY(12px) scale(0.96);
+  transition: opacity 0.45s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.smp.is-ready {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 .smp[hidden] {
@@ -170,7 +180,7 @@
   cursor: pointer;
 }
 
-/* Collapsed edge tab — only cover peeks out */
+/* Collapsed edge tab — mostly in the wall, peek a strip */
 .smp-edge {
   display: none;
   width: 44px;
@@ -208,6 +218,15 @@
   right: 0 !important;
 }
 
+.smp.is-ready.is-collapsed.is-dock-right:not(.is-peek):not(.is-dragging) {
+  transform: translateX(calc(100% - var(--smp-peek)));
+}
+
+.smp.is-ready.is-collapsed.is-dock-right.is-peek,
+.smp.is-ready.is-collapsed.is-dock-right.is-dragging {
+  transform: translateX(0);
+}
+
 .smp.is-collapsed.is-dock-right .smp-edge {
   border-radius: 10px 0 0 10px;
 }
@@ -215,6 +234,15 @@
 .smp.is-collapsed.is-dock-left {
   left: 0 !important;
   right: auto !important;
+}
+
+.smp.is-ready.is-collapsed.is-dock-left:not(.is-peek):not(.is-dragging) {
+  transform: translateX(calc(-100% + var(--smp-peek)));
+}
+
+.smp.is-ready.is-collapsed.is-dock-left.is-peek,
+.smp.is-ready.is-collapsed.is-dock-left.is-dragging {
+  transform: translateX(0);
 }
 
 .smp.is-collapsed.is-dock-left .smp-edge {
@@ -226,6 +254,36 @@
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+/* 靠近感应区：向页面内侧伸出，藏进墙时也能被鼠标碰到 */
+.smp-hotzone {
+  display: none;
+  position: absolute;
+  top: 50%;
+  height: 96px;
+  transform: translateY(-50%);
+  pointer-events: auto;
+}
+
+.smp.is-collapsed .smp-hotzone {
+  display: block;
+}
+
+.smp.is-collapsed.is-peek .smp-hotzone {
+  pointer-events: none;
+}
+
+.smp.is-collapsed.is-dock-right .smp-hotzone {
+  left: -44px;
+  right: auto;
+  width: 58px;
+}
+
+.smp.is-collapsed.is-dock-left .smp-hotzone {
+  left: auto;
+  right: -44px;
+  width: 58px;
 }
 
 @media (max-width: 640px) {

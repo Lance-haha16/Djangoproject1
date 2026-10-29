@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-$rmos+$!s#_pn+9kk!a@k8*((13b1*s9+ydite$q%i$oro#xi#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.0.61', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -93,6 +93,22 @@ TEMPLATES = [
 WSGI_APPLICATION = 'my_blog.wsgi.application'
 
 
+def _load_dotenv(path):
+    if not path.is_file():
+        return
+    for raw in path.read_text(encoding='utf-8').splitlines():
+        line = raw.strip()
+        if not line or line.startswith('#') or '=' not in line:
+            continue
+        key, value = line.split('=', 1)
+        os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
+
+
+_load_dotenv(BASE_DIR / '.env')
+
+GITHUB_CLIENT_ID = os.environ.get('GITHUB_CLIENT_ID', '')
+GITHUB_CLIENT_SECRET = os.environ.get('GITHUB_CLIENT_SECRET', '')
+
 AUTHENTICATION_BACKENDS = (
     # Django 后台可独立于 allauth 登录
     'django.contrib.auth.backends.ModelBackend',
@@ -100,6 +116,23 @@ AUTHENTICATION_BACKENDS = (
     # 配置 allauth 独有的认证方法，如 email 登录
     'allauth.account.auth_backends.AuthenticationBackend',
 )
+
+LOGIN_URL = '/userprofile/login/'
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
+SOCIALACCOUNT_LOGIN_ON_GET = True
+SOCIALACCOUNT_QUERY_EMAIL = True
+SOCIALACCOUNT_PROVIDERS = {
+    'github': {
+        'SCOPE': ['read:user', 'user:email'],
+        'APP': {
+            'client_id': GITHUB_CLIENT_ID,
+            'secret': GITHUB_CLIENT_SECRET,
+            'key': '',
+        },
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases

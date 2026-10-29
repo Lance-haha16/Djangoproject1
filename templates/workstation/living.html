@@ -17,8 +17,12 @@
         <input type="text" name="slug" value="{{ editing.slug|default:'' }}">
     </div>
     <div class="ws-form-row">
-        <label>卖点</label>
-        <input type="text" name="tagline" value="{{ editing.tagline|default:'' }}">
+        <label>状态文案（卖点）</label>
+        <input type="text" name="tagline" value="{{ editing.tagline|default:'' }}" placeholder="如：空气优 · 32 μg/m³">
+    </div>
+    <div class="ws-form-row">
+        <label>房间</label>
+        <input type="text" name="room" value="{{ editing.room|default:'客厅' }}" placeholder="客厅 / 卧室 / 书房">
     </div>
     <div class="ws-form-row">
         <label>图片 URL（如 /static/living/img/xxx.svg）</label>

@@ -6,11 +6,19 @@
   width: 168px;
   user-select: none;
   display: none;
+  opacity: 0;
+  transform: translateY(16px) scale(0.94);
+  transition: opacity 0.55s ease, transform 0.55s ease;
 }
 
 @media (min-width: 900px) {
   .cyber-cat {
     display: block;
+  }
+
+  .cyber-cat.is-ready {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 

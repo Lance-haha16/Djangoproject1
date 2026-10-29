@@ -4,7 +4,7 @@
 {% block title %}留言 - Fly's 博客{% endblock title %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'site/message.css' %}?v=2">
+<link rel="stylesheet" href="{% static 'site/message.css' %}?v=3">
 
 <div class="container" style="padding-top: 24px; padding-bottom: 48px;">
     <div class="message-column">
@@ -25,7 +25,10 @@
             {% endif %}
             <strong>{{ visitor_name }}</strong>
         </div>
-        <a href="{% url 'userprofile:logout' %}"><i class="fi fi-br-exit"></i>退出</a>
+        <form class="message-logout" method="post" action="{% url 'userprofile:logout' %}">
+            {% csrf_token %}
+            <button type="submit"><i class="fi fi-br-exit"></i>退出</button>
+        </form>
     </div>
     <form method="post" action="{% url 'message:message_post' %}">
         {% csrf_token %}
